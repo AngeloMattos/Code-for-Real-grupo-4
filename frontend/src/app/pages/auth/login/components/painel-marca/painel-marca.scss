@@ -1,0 +1,76 @@
+:host {
+  display: contents;
+}
+
+.marca {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 48px;
+  padding: 40px 48px;
+  background: var(--cor-marca);
+  color: #fff;
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: var(--texto-card);
+    font-weight: 600;
+  }
+
+  &__logo-icone {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--raio-controle);
+    background: rgb(255 255 255 / 0.16);
+  }
+
+  &__conteudo {
+    max-width: 440px;
+  }
+
+  &__titulo {
+    margin: 0 0 16px;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  &__texto {
+    margin: 0 0 32px;
+    font-size: var(--texto-form);
+    color: rgb(255 255 255 / 0.88);
+  }
+
+  &__lista {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--texto-form);
+    font-weight: 500;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  &__rodape {
+    margin: 0;
+    font-size: var(--texto-legenda);
+    color: rgb(255 255 255 / 0.75);
+  }
+}
+
+@media (max-width: 960px) {
+  :host {
+    display: none;
+  }
+}

@@ -1,0 +1,189 @@
+<app-page-header
+  titulo="Nova pendência"
+  descricao="Diga o que falta, quem precisa resolver e até quando."
+/>
+
+@if (criada(); as p) {
+  <section class="painel cartao-sucesso">
+    <app-empty-state
+      icone="check"
+      [titulo]="'Pendência aberta e enviada para ' + nomeSetor[p.setorResponsavel]"
+      [texto]="'“' + p.titulo + '” (#' + p.id + ') já aparece para quem vai resolver.' + (p.bloqueiaFolha ? ' Ela bloqueia a folha até ser concluída.' : '')"
+    >
+      <div class="acoes-final">
+        <button type="button" class="botao-secundario" (click)="abrirOutra()">Abrir outra</button>
+        @if (veioDoPonto) {
+          <a class="botao-primario" routerLink="/ponto">Voltar ao ponto</a>
+        } @else {
+          <a class="botao-primario" routerLink="/inicio">Ir para o início</a>
+        }
+      </div>
+    </app-empty-state>
+  </section>
+} @else {
+  <div class="layout">
+    <form class="painel formulario" [formGroup]="form" (ngSubmit)="abrir()" novalidate>
+      <div class="linha-dupla">
+        <div class="campo">
+          <label class="campo__rotulo" for="tipo">Tipo</label>
+          <div class="selecao">
+            <select id="tipo" class="campo__input selecao__select" formControlName="tipo">
+              @for (t of tipos(); track t) {
+                <option [value]="t">{{ nomeTipo[t] }}</option>
+              }
+            </select>
+            <app-icone nome="seta-baixo" class="selecao__seta" />
+          </div>
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="funcionario">Funcionário</label>
+          <div class="selecao">
+            <select
+              id="funcionario"
+              class="campo__input selecao__select"
+              formControlName="funcionarioId"
+              aria-describedby="funcionario-erro"
+              [attr.aria-invalid]="invalido('funcionarioId')"
+            >
+              <option [ngValue]="null" disabled>
+                {{ funcionarios.isLoading() ? 'Carregando…' : 'Escolha o funcionário' }}
+              </option>
+              @for (g of gruposFuncionarios(); track g.departamento) {
+                <optgroup [label]="g.departamento">
+                  @for (f of g.lista; track f.id) {
+                    <option [ngValue]="f.id">{{ f.nome }}</option>
+                  }
+                </optgroup>
+              }
+            </select>
+            <app-icone nome="seta-baixo" class="selecao__seta" />
+          </div>
+          @if (invalido('funcionarioId')) {
+            <span id="funcionario-erro" class="campo__erro">Escolha o funcionário.</span>
+          }
+        </div>
+      </div>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="titulo">Título</label>
+        <input
+          id="titulo"
+          class="campo__input"
+          formControlName="titulo"
+          maxlength="120"
+          [placeholder]="exemploTitulo()"
+          aria-describedby="titulo-erro"
+          [attr.aria-invalid]="invalido('titulo')"
+        />
+        @if (invalido('titulo')) {
+          <span id="titulo-erro" class="campo__erro">Dê um título curto para a pendência.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="descricao">
+          Descrição <span class="campo__opcional">(opcional)</span>
+        </label>
+        <textarea
+          id="descricao"
+          class="campo__input campo__texto"
+          formControlName="descricao"
+          rows="4"
+          maxlength="1000"
+          placeholder="O que falta, o que já foi verificado e o que a pessoa precisa fazer."
+        ></textarea>
+      </div>
+
+      <fieldset class="campo destinos">
+        <legend class="campo__rotulo">Com quem fica</legend>
+        <div class="destinos__opcoes">
+          @for (s of destinos; track s) {
+            <label class="destino" [style.--setor]="'var(--setor-' + s.toLowerCase() + ')'">
+              <input type="radio" formControlName="setorResponsavel" [value]="s" />
+              {{ nomeSetor[s] }}
+            </label>
+          }
+        </div>
+      </fieldset>
+
+      <div class="linha-dupla">
+        <div class="campo">
+          <label class="campo__rotulo" for="prazo">Prazo</label>
+          <input
+            id="prazo"
+            type="date"
+            class="campo__input"
+            formControlName="prazo"
+            [min]="hoje"
+            aria-describedby="prazo-erro"
+            [attr.aria-invalid]="invalido('prazo')"
+          />
+          @if (invalido('prazo')) {
+            <span id="prazo-erro" class="campo__erro">Escolha uma data de hoje em diante.</span>
+          }
+        </div>
+
+        <label class="bloqueia">
+          <input type="checkbox" formControlName="bloqueiaFolha" />
+          <span>
+            <strong>Bloqueia a folha</strong>
+            <span class="bloqueia__ajuda">
+              Enquanto estiver aberta, a folha de {{ competencia.nome() }} não segue para a contabilidade.
+            </span>
+          </span>
+        </label>
+      </div>
+
+      @if (erroEnvio()) {
+        <div class="aviso aviso--erro" role="alert"><app-icone nome="alerta" /> {{ erroEnvio() }}</div>
+      }
+
+      <div class="rodape">
+        <a class="botao-secundario" [routerLink]="veioDoPonto ? '/ponto' : '/inicio'">Cancelar</a>
+        <button type="submit" class="botao-primario" [disabled]="enviando()">
+          <app-icone [nome]="enviando() ? 'carregando' : 'mais'" />
+          {{ enviando() ? 'Abrindo…' : 'Abrir pendência' }}
+        </button>
+      </div>
+    </form>
+
+    <!-- As quatro perguntas que toda pendência responde (docs/Desgin.md §1) -->
+    <aside class="painel resumo" aria-labelledby="resumo-titulo">
+      <h2 id="resumo-titulo" class="resumo__titulo">Como ela vai aparecer</h2>
+      <dl class="resumo__lista">
+        <dt>O que está pendente</dt>
+        <dd>
+          @if (resumo().titulo.trim()) {
+            <strong>{{ resumo().titulo }}</strong>
+          } @else {
+            <span class="resumo__vazio">Sem título ainda</span>
+          }
+          <span class="resumo__tipo">{{ nomeTipo[resumo().tipo!] }}</span>
+        </dd>
+
+        <dt>De quem</dt>
+        <dd>
+          @if (resumo().funcionarioNome; as nome) {
+            {{ nome }}
+          } @else {
+            <span class="resumo__vazio">Escolha o funcionário</span>
+          }
+        </dd>
+
+        <dt>Quem precisa resolver</dt>
+        <dd><app-setor-badge [setor]="resumo().setorResponsavel!" /></dd>
+
+        <dt>Qual é o prazo</dt>
+        <dd><app-prazo-label [prazo]="resumo().prazo || null" /></dd>
+      </dl>
+
+      @if (resumo().bloqueiaFolha) {
+        <p class="resumo__bloqueio">
+          <app-icone nome="cadeado" />
+          Bloqueia a folha de {{ competencia.nome() }}
+        </p>
+      }
+    </aside>
+  </div>
+}

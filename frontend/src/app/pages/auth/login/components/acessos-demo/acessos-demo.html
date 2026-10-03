@@ -1,0 +1,16 @@
+<div class="demo">
+  <span class="demo__titulo">Entrar como demo</span>
+  <div class="demo__botoes">
+    @for (demo of demos(); track demo.papel) {
+      <button
+        type="button"
+        class="demo__botao"
+        [class]="'demo__botao--' + demo.papel.toLowerCase()"
+        [disabled]="carregando()"
+        (click)="escolher.emit(demo)"
+      >
+        {{ demo.rotulo }}
+      </button>
+    }
+  </div>
+</div>

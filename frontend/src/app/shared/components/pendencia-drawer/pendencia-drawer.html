@@ -1,0 +1,133 @@
+<dialog
+  #dialogo
+  class="drawer"
+  aria-labelledby="drawer-titulo"
+  (close)="fechar.emit()"
+  (click)="cliqueNoFundo($event)"
+>
+  @if (pendencia(); as p) {
+    <div class="drawer__painel">
+      <header class="drawer__cabecalho">
+        <div class="drawer__topo">
+          <span class="drawer__tipo">{{ nomeTipo[p.tipo] }}</span>
+          <button type="button" class="drawer__fechar" aria-label="Fechar detalhe" (click)="dialogo.close()">
+            <app-icone nome="fechar" />
+          </button>
+        </div>
+        <h2 id="drawer-titulo" class="drawer__titulo">{{ p.titulo }}</h2>
+        <div class="drawer__selos">
+          <app-status-badge [status]="p.status" />
+          <app-setor-badge [setor]="p.setorResponsavel" />
+          <app-prazo-label [prazo]="p.prazo" [atrasada]="p.atrasada" />
+        </div>
+      </header>
+
+      <div class="drawer__corpo">
+        <section aria-labelledby="drawer-descricao">
+          <h3 id="drawer-descricao" class="drawer__secao">Descrição</h3>
+          @if (p.descricao) {
+            <p class="drawer__descricao">{{ p.descricao }}</p>
+          } @else {
+            <p class="drawer__vazio">Sem descrição.</p>
+          }
+        </section>
+
+        <section aria-labelledby="drawer-dados">
+          <h3 id="drawer-dados" class="drawer__secao">Dados</h3>
+          <dl class="dados">
+            <dt>Funcionário</dt>
+            <dd>
+              <span class="dados__funcionario">
+                <app-avatar [nome]="p.funcionarioNome" [tamanho]="24" />
+                {{ p.funcionarioNome }}
+              </span>
+            </dd>
+            <dt>Tipo</dt>
+            <dd>{{ nomeTipo[p.tipo] }}</dd>
+            <dt>Criada em</dt>
+            <dd>{{ p.criadoEm | date: "dd/MM/yyyy 'às' HH:mm" }}</dd>
+            <dt>Responsável</dt>
+            <dd>{{ p.responsavelNome ?? 'Qualquer pessoa do setor' }}</dd>
+          </dl>
+        </section>
+
+        <section aria-labelledby="drawer-historico">
+          <h3 id="drawer-historico" class="drawer__secao">Histórico</h3>
+
+          @if (eventos.error()) {
+            <p class="drawer__vazio">
+              Não foi possível carregar o histórico.
+              <button type="button" class="link-acao" (click)="eventos.reload()">Tentar de novo</button>
+            </p>
+          } @else if (eventos.value(); as lista) {
+            <ol class="chat">
+              @for (e of lista; track e.id) {
+                @if (e.tipo === 'MUDANCA_STATUS' || e.tipo === 'CRIACAO') {
+                  <li class="chat__sistema">
+                    <span>
+                      <strong>{{ e.autorNome }}</strong>
+                      @if (e.tipo === 'CRIACAO') {
+                        abriu a solicitação
+                      } @else if (e.statusNovo) {
+                        mudou para <strong>{{ nomeStatus[e.statusNovo] }}</strong>
+                      }
+                      · <time [attr.datetime]="e.quando" [title]="e.quando | date: 'dd/MM/yyyy HH:mm'">{{ e.quando | tempoRelativo }}</time>
+                    </span>
+                  </li>
+                }
+                @if (e.comentario) {
+                  <li class="chat__msg" [class.chat__msg--minha]="ehMeu(e)">
+                    <app-avatar [nome]="e.autorNome" [setor]="e.autorSetor" [tamanho]="28" />
+                    <div class="chat__balao">
+                      <span class="chat__autor">
+                        {{ ehMeu(e) && ehFuncionario() ? 'Você' : e.autorNome }}
+                        <app-setor-badge [setor]="e.autorSetor" />
+                      </span>
+                      <p class="chat__texto">{{ e.comentario }}</p>
+                      <time class="chat__hora" [attr.datetime]="e.quando">{{ e.quando | date: "dd/MM 'às' HH:mm" }}</time>
+                    </div>
+                  </li>
+                }
+              }
+            </ol>
+          } @else {
+            <div class="chat" aria-hidden="true">
+              <span class="skeleton chat__esqueleto"></span>
+              <span class="skeleton chat__esqueleto chat__esqueleto--minha"></span>
+            </div>
+            <p class="sr-only" role="status">Carregando o histórico…</p>
+          }
+        </section>
+
+        <section aria-labelledby="drawer-acoes">
+          <h3 id="drawer-acoes" class="drawer__secao">O que pode ser feito</h3>
+
+          @if (situacao().aviso; as aviso) {
+            <p class="aviso">
+              <app-icone nome="info" [tamanho]="16" />
+              {{ aviso }}
+            </p>
+          }
+
+          @if (situacao().acoes.length) {
+            <ul class="acoes">
+              @for (a of situacao().acoes; track a.rotulo) {
+                <li class="acao" [class]="'acao--' + a.tom">
+                  <strong class="acao__rotulo">{{ a.rotulo }}</strong>
+                  <span class="acao__explicacao">{{ a.explicacao }}</span>
+                </li>
+              }
+            </ul>
+          }
+
+          @if (!ehFuncionario()) {
+            <p class="orientacao">
+              <strong>Antes de decidir:</strong>
+              {{ orientacao() }}
+            </p>
+          }
+        </section>
+      </div>
+    </div>
+  }
+</dialog>

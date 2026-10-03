@@ -1,0 +1,21 @@
+<form [formGroup]="form" (ngSubmit)="submeter()" novalidate>
+  <div class="campo">
+    <label class="campo__rotulo" for="email">E-mail corporativo</label>
+    <input
+      id="email"
+      type="email"
+      class="campo__input"
+      formControlName="email"
+      autocomplete="username"
+      placeholder="voce@empresa.com.br"
+      aria-describedby="email-erro"
+      [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+    />
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <span id="email-erro" class="campo__erro">Informe um e-mail válido.</span>
+    }
+  </div>
+
+  <app-campo-senha [controle]="form.controls.senha" />
+  <app-rodape-form [erro]="erro()" [carregando]="carregando()" />
+</form>

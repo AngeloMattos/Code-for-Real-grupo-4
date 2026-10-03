@@ -1,0 +1,112 @@
+<app-page-header [titulo]="saudacao()" descricao="Suas solicitações, seu ponto e seus holerites em um só lugar." />
+
+@if (dashboard.error()) {
+  <div class="painel">
+    <app-empty-state
+      icone="alerta"
+      titulo="Não foi possível carregar seus dados"
+      texto="Verifique sua conexão e tente de novo."
+    >
+      <button type="button" class="botao-secundario" (click)="dashboard.reload()">Tentar de novo</button>
+    </app-empty-state>
+  </div>
+} @else if (dashboard.value(); as d) {
+  @if (correcoes()) {
+    <a class="correcao" routerLink="/pendencias" [queryParams]="{ aba: 'comigo' }">
+      <app-icone nome="triangulo" />
+      {{ correcoes() === 1 ? 'Uma solicitação precisa' : correcoes() + ' solicitações precisam' }}
+      de correção sua.
+      <span class="correcao__acao">Ver agora <app-icone nome="seta-direita" /></span>
+    </a>
+  }
+
+  <section class="acoes" aria-label="Ações rápidas">
+    <a class="acao" routerLink="/solicitacoes/nova">
+      <span class="acao__icone"><app-icone nome="enviar-arquivo" [tamanho]="22" /></span>
+      <span class="acao__titulo">Enviar atestado</span>
+      <span class="acao__texto">Atestado, férias ou alteração cadastral. O RH analisa em até 2 dias úteis.</span>
+      <span class="acao__link">Enviar <app-icone nome="seta-direita" /></span>
+    </a>
+
+    <a class="acao" routerLink="/ponto">
+      <span class="acao__icone"><app-icone nome="relogio" [tamanho]="22" /></span>
+      <span class="acao__titulo">Registrar ponto</span>
+      <span class="acao__texto">
+        @if (d.pontoHoje.entrada && !d.pontoHoje.saida) {
+          Entrada às <strong class="numero">{{ d.pontoHoje.entrada }}</strong>. Falta registrar a saída.
+        } @else if (d.pontoHoje.entrada && d.pontoHoje.saida) {
+          Hoje: <strong class="numero">{{ d.pontoHoje.entrada }}</strong> às
+          <strong class="numero">{{ d.pontoHoje.saida }}</strong>.
+        } @else {
+          Nenhuma marcação hoje.
+        }
+      </span>
+      <span class="acao__link">
+        {{ d.pontoHoje.entrada && !d.pontoHoje.saida ? 'Registrar saída' : 'Registrar entrada' }}
+        <app-icone nome="seta-direita" />
+      </span>
+    </a>
+
+    <a class="acao" routerLink="/holerites">
+      <span class="acao__icone"><app-icone nome="holerite" [tamanho]="22" /></span>
+      <span class="acao__titulo">Meu último holerite</span>
+      <span class="acao__texto">
+        @if (d.ultimoHolerite; as h) {
+          {{ nomeCompetencia(h.competencia) }} ·
+          <strong class="numero">{{ h.liquido | currency: 'BRL' }}</strong> líquido
+        } @else {
+          Nenhum holerite publicado ainda.
+        }
+      </span>
+      <span class="acao__link">Ver holerites <app-icone nome="seta-direita" /></span>
+    </a>
+  </section>
+
+  <section class="painel" aria-labelledby="titulo-solicitacoes">
+    <header class="painel__cabecalho">
+      <div>
+        <h2 id="titulo-solicitacoes" class="painel__titulo">Minhas solicitações em andamento</h2>
+        <p class="painel__subtitulo">Com quem está cada pedido e até quando.</p>
+      </div>
+      <a class="link-acao" routerLink="/pendencias">Ver todas <app-icone nome="seta-direita" /></a>
+    </header>
+
+    @if (d.solicitacoes.length) {
+      <app-pendencias-table
+        [pendencias]="d.solicitacoes"
+        [mostrarFuncionario]="false"
+        (abrir)="abrir($event)"
+      />
+    } @else {
+      <app-empty-state icone="check" titulo="Nenhuma solicitação em andamento" texto="Tudo em dia por aqui.">
+        <a class="botao-secundario" routerLink="/solicitacoes/nova">Enviar documento</a>
+      </app-empty-state>
+    }
+  </section>
+
+  @if (d.respondidas.length) {
+    <section class="painel" aria-labelledby="titulo-respondidas">
+      <header class="painel__cabecalho">
+        <div>
+          <h2 id="titulo-respondidas" class="painel__titulo">Respondidas recentemente</h2>
+          <p class="painel__subtitulo">Clique para ver a resposta e a conversa com o setor.</p>
+        </div>
+      </header>
+      <app-pendencias-table
+        [pendencias]="d.respondidas"
+        [mostrarFuncionario]="false"
+        (abrir)="abrir($event)"
+      />
+    </section>
+  }
+} @else {
+  <div class="acoes" aria-hidden="true">
+    @for (i of [1, 2, 3]; track i) {
+      <span class="skeleton esqueleto-acao"></span>
+    }
+  </div>
+  <span class="skeleton esqueleto-tabela" aria-hidden="true"></span>
+  <p class="sr-only" role="status">Carregando seus dados…</p>
+}
+
+<app-pendencia-drawer [pendencia]="selecionada()" papel="FUNCIONARIO" (fechar)="selecionada.set(null)" />

@@ -1,0 +1,35 @@
+<div class="sidebar__topo">
+  <a class="sidebar__logo" routerLink="/inicio">
+    <span class="sidebar__logo-icone"><app-icone nome="logo" [tamanho]="20" /></span>
+    Folha Conecta
+  </a>
+  <button type="button" class="sidebar__fechar" aria-label="Fechar menu" (click)="fechar.emit()">
+    <app-icone nome="fechar" [tamanho]="20" />
+  </button>
+</div>
+
+<nav class="sidebar__menu" aria-label="Menu principal">
+  <ul>
+    @for (item of itens(); track item.caminho) {
+      <li>
+        <a
+          class="sidebar__item"
+          [routerLink]="'/' + item.caminho"
+          routerLinkActive="sidebar__item--ativo"
+          ariaCurrentWhenActive="page"
+        >
+          <app-icone [nome]="item.icone" [tamanho]="18" />
+          {{ item.rotulo }}
+        </a>
+      </li>
+    }
+  </ul>
+</nav>
+
+<div class="sidebar__usuario">
+  <app-avatar [nome]="usuario().nome" [setor]="papel()" [tamanho]="36" />
+  <div class="sidebar__usuario-dados">
+    <span class="sidebar__usuario-nome">{{ usuario().nome }}</span>
+    <app-setor-badge [setor]="papel()" />
+  </div>
+</div>

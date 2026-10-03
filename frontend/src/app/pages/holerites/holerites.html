@@ -1,0 +1,103 @@
+<app-page-header titulo="Holerites" descricao="Seus holerites publicados pelo Financeiro, com a origem de cada valor." />
+
+@if (holerites.error()) {
+  <div class="painel">
+    <app-empty-state icone="alerta" titulo="Não foi possível carregar seus holerites" texto="Verifique sua conexão e tente de novo.">
+      <button type="button" class="botao-secundario" (click)="holerites.reload()">Tentar de novo</button>
+    </app-empty-state>
+  </div>
+} @else if (holerites.isLoading()) {
+  <div class="layout" aria-hidden="true">
+    <span class="skeleton esqueleto-lista"></span>
+    <span class="skeleton esqueleto-detalhe"></span>
+  </div>
+  <p class="sr-only" role="status">Carregando seus holerites…</p>
+} @else if (!holerites.value()?.length) {
+  <div class="painel">
+    <app-empty-state
+      icone="holerite"
+      titulo="Nenhum holerite publicado ainda"
+      texto="Assim que a folha do mês for fechada, o holerite aparece aqui."
+    />
+  </div>
+} @else {
+  <div class="layout">
+    <!-- Lista por competência -->
+    <nav class="painel lista" aria-label="Competências">
+      @for (h of holerites.value(); track h.competencia) {
+        <button
+          type="button"
+          class="lista__item"
+          [attr.aria-current]="h.competencia === selecionada() ? 'true' : null"
+          (click)="selecionada.set(h.competencia)"
+        >
+          <span class="lista__icone"><app-icone nome="holerite" /></span>
+          <span class="lista__texto">
+            <span class="lista__mes">{{ nomeCompetencia(h.competencia) }}</span>
+            <span class="lista__valor">{{ h.liquido | currency: 'BRL' }} líquido</span>
+          </span>
+          <app-icone nome="seta-direita" class="lista__seta" />
+        </button>
+      }
+    </nav>
+
+    <!-- Detalhe -->
+    @if (holerite(); as h) {
+      <article class="painel detalhe" [attr.aria-label]="'Holerite de ' + nomeCompetencia(h.competencia)">
+        <header class="detalhe__cabecalho">
+          <div>
+            <span class="detalhe__empresa">{{ h.empresaNome }}</span>
+            <h2 class="detalhe__titulo">Holerite · {{ nomeCompetencia(h.competencia) }}</h2>
+            <p class="detalhe__pessoa">{{ h.funcionarioNome }} · {{ h.cargo }} · {{ h.departamento }}</p>
+          </div>
+          <span class="publicado">Publicado em {{ h.publicadoEm | date: 'dd/MM/yyyy' }}</span>
+        </header>
+
+        <div class="secoes">
+          <section aria-labelledby="titulo-proventos">
+            <h3 id="titulo-proventos" class="secao__titulo">Proventos</h3>
+            <ul class="linhas">
+              @for (l of proventos(); track l.rotulo) {
+                <li class="linha">
+                  <span class="linha__texto">
+                    <span class="linha__rotulo">{{ l.rotulo }}</span>
+                    <span class="linha__origem">{{ l.origem }}</span>
+                  </span>
+                  <span class="linha__valor">{{ l.valor | currency: 'BRL' }}</span>
+                </li>
+              }
+            </ul>
+            <div class="total">
+              <span>Total de proventos</span>
+              <span class="total__valor">{{ h.totalProventos | currency: 'BRL' }}</span>
+            </div>
+          </section>
+
+          <section aria-labelledby="titulo-descontos">
+            <h3 id="titulo-descontos" class="secao__titulo">Descontos</h3>
+            <ul class="linhas">
+              @for (l of descontos(); track l.rotulo) {
+                <li class="linha">
+                  <span class="linha__texto">
+                    <span class="linha__rotulo">{{ l.rotulo }}</span>
+                    <span class="linha__origem">{{ l.origem }}</span>
+                  </span>
+                  <span class="linha__valor linha__valor--desconto">− {{ l.valor | currency: 'BRL' }}</span>
+                </li>
+              }
+            </ul>
+            <div class="total">
+              <span>Total de descontos</span>
+              <span class="total__valor linha__valor--desconto">− {{ h.totalDescontos | currency: 'BRL' }}</span>
+            </div>
+          </section>
+        </div>
+
+        <footer class="liquido">
+          <span>Valor líquido a receber</span>
+          <strong class="liquido__valor">{{ h.liquido | currency: 'BRL' }}</strong>
+        </footer>
+      </article>
+    }
+  </div>
+}

@@ -1,0 +1,307 @@
+@if (folha.error()) {
+  <app-page-header titulo="Folha de pagamento" />
+  <div class="painel">
+    <app-empty-state icone="alerta" titulo="Não foi possível carregar a folha" texto="Verifique sua conexão e tente de novo.">
+      <button type="button" class="botao-secundario" (click)="folha.reload()">Tentar de novo</button>
+    </app-empty-state>
+  </div>
+} @else if (folha.value(); as f) {
+  <app-page-header
+    titulo="Folha de pagamento"
+    [descricao]="nomeStatus[f.status] + ' · ' + competencia.nome() + (f.status === 'FECHADA' ? '' : ' · fecha em ' + (f.prazoFechamento | date: 'dd/MM'))"
+  >
+    <!-- Ações por setor e etapa (docs/Desgin.md §3) -->
+    @if (ehFinanceiro()) {
+      @if (f.status === 'ABERTA') {
+        <button type="button" class="botao-primario" [disabled]="executando()" (click)="executar('calcular')">
+          <app-icone [nome]="executando() === 'calcular' ? 'carregando' : 'calculadora'" />
+          Calcular prévia
+        </button>
+      } @else if (f.status === 'PREVIA_CALCULADA') {
+        <button type="button" class="botao-secundario" [disabled]="executando()" (click)="executar('calcular')">
+          <app-icone [nome]="executando() === 'calcular' ? 'carregando' : 'calculadora'" />
+          Recalcular prévia
+        </button>
+        <button
+          type="button"
+          class="botao-primario"
+          [disabled]="executando() || f.bloqueios.length"
+          [attr.aria-describedby]="f.bloqueios.length ? 'titulo-bloqueios' : null"
+          (click)="executar('enviar')"
+        >
+          <app-icone [nome]="executando() === 'enviar' ? 'carregando' : (f.bloqueios.length ? 'cadeado' : 'seta-direita')" />
+          Enviar para a contabilidade
+        </button>
+      } @else if (f.status === 'FECHADA' && !f.holeritesPublicados) {
+        <button type="button" class="botao-primario" [disabled]="executando()" (click)="executar('publicar')">
+          <app-icone [nome]="executando() === 'publicar' ? 'carregando' : 'holerite'" />
+          Publicar holerites
+        </button>
+      }
+    }
+    @if (ehContabilidade() && f.status === 'EM_CONFERENCIA') {
+      <button type="button" class="botao-primario" [disabled]="executando()" (click)="pedirFechamento()">
+        <app-icone [nome]="executando() === 'fechar' ? 'carregando' : 'cadeado'" />
+        Fechar folha
+      </button>
+    }
+  </app-page-header>
+
+  @if (mensagem(); as m) {
+    <div class="mensagem" [class]="'mensagem--' + m.tipo" [attr.role]="m.tipo === 'erro' ? 'alert' : 'status'">
+      <app-icone [nome]="m.tipo === 'erro' ? 'alerta' : 'check'" />
+      <span>{{ m.texto }}</span>
+      <button type="button" class="mensagem__fechar" aria-label="Fechar aviso" (click)="mensagem.set(null)">
+        <app-icone nome="fechar" />
+      </button>
+    </div>
+  }
+
+  <!-- Status e bloqueios -->
+  <section class="painel" aria-labelledby="titulo-fechamento">
+    <header class="painel__cabecalho">
+      <div>
+        <h2 id="titulo-fechamento" class="painel__titulo">Fechamento de {{ competencia.nome() }}</h2>
+        <p class="painel__subtitulo">Ponto → Documentos → Prévia → Conferência → Fechada</p>
+      </div>
+    </header>
+    <div class="painel__corpo status">
+      <app-folha-stepper [etapaAtual]="etapaDoStatus[f.status]" />
+
+      <dl class="fatos">
+        <div>
+          <dt>Prévia calculada</dt>
+          <dd>{{ f.calculadaEm ? (f.calculadaEm | date: "dd/MM 'às' HH:mm") : 'Ainda não' }}</dd>
+        </div>
+        <div>
+          <dt>Prazo de fechamento</dt>
+          <dd>{{ f.prazoFechamento | date: 'dd/MM/yyyy' }}</dd>
+        </div>
+        <div>
+          <dt>Fechada</dt>
+          <dd>
+            @if (f.fechadaEm) {
+              {{ f.fechadaEm | date: 'dd/MM' }} por {{ f.fechadaPorNome }}
+            } @else {
+              Ainda não
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Holerites</dt>
+          <dd>{{ f.holeritesPublicados ? 'Publicados' : 'Não publicados' }}</dd>
+        </div>
+      </dl>
+
+      @if (f.bloqueios.length) {
+        <div class="bloqueios">
+          <h3 id="titulo-bloqueios" class="bloqueios__titulo">
+            <app-icone nome="cadeado" />
+            Bloqueada por {{ f.bloqueios.length }} {{ f.bloqueios.length === 1 ? 'pendência' : 'pendências' }}
+          </h3>
+          <p class="bloqueios__texto">
+            A folha só segue para a contabilidade quando estas pendências forem concluídas.
+          </p>
+          <ul class="bloqueios__lista">
+            @for (p of f.bloqueios; track p.id) {
+              <li>
+                <button type="button" class="bloqueio" (click)="pendenciaAberta.set(p)">
+                  <span class="bloqueio__titulo">
+                    {{ p.titulo }}
+                    <span class="bloqueio__funcionario">{{ p.funcionarioNome }}</span>
+                  </span>
+                  <app-setor-badge [setor]="p.setorResponsavel" />
+                  <app-status-badge [status]="p.status" />
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      } @else if (f.status !== 'FECHADA') {
+        <p class="sem-bloqueio">
+          <app-icone nome="check" />
+          Sem bloqueios: a folha pode seguir para a próxima etapa.
+        </p>
+      }
+    </div>
+  </section>
+
+  <!-- Valores por funcionário -->
+  @if (!podeVerValores()) {
+    <div class="painel">
+      <app-empty-state
+        icone="cadeado"
+        titulo="Valores por funcionário ficam com o Financeiro e a Contabilidade"
+        texto="Salários e holerites só aparecem para esses setores e para o próprio funcionário (LGPD)."
+      />
+    </div>
+  } @else if (f.status === 'ABERTA') {
+    <div class="painel">
+      @if (ehFinanceiro()) {
+        <app-empty-state
+          icone="calculadora"
+          titulo="A prévia ainda não foi calculada"
+          texto="O cálculo usa o salário do cadastro, as horas extras e faltas do ponto e as pendências do mês."
+        >
+          <button type="button" class="botao-primario" [disabled]="executando()" (click)="executar('calcular')">
+            Calcular prévia
+          </button>
+        </app-empty-state>
+      } @else {
+        <app-empty-state
+          icone="ampulheta"
+          titulo="Aguardando a prévia do Financeiro"
+          texto="Quando o Financeiro calcular e enviar, a folha aparece aqui para conferência."
+        />
+      }
+    </div>
+  } @else if (itens.error()) {
+    <div class="painel">
+      <app-empty-state icone="alerta" titulo="Não foi possível carregar os valores">
+        <button type="button" class="botao-secundario" (click)="itens.reload()">Tentar de novo</button>
+      </app-empty-state>
+    </div>
+  } @else if (itens.isLoading()) {
+    <div class="resumo" aria-hidden="true">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <span class="skeleton esqueleto-resumo"></span>
+      }
+    </div>
+    <span class="skeleton esqueleto-tabela" aria-hidden="true"></span>
+    <p class="sr-only" role="status">Carregando os valores…</p>
+  } @else {
+    @if (f.status !== 'FECHADA') {
+      <p class="previa">
+        <app-icone nome="info" />
+        <span>
+          <strong>Prévia.</strong> Cálculo simplificado: salário + horas extras − faltas − INSS − IRRF − VT.
+          Férias, 13º e adicionais ficam fora do MVP.
+        </span>
+      </p>
+    }
+
+    <section class="resumo" aria-label="Totais da folha">
+      <div class="resumo__item">
+        <span class="resumo__rotulo">Proventos</span>
+        <span class="resumo__valor">{{ totais().proventos | currency: 'BRL' }}</span>
+      </div>
+      <div class="resumo__item">
+        <span class="resumo__rotulo">Descontos</span>
+        <span class="resumo__valor">{{ totais().todosDescontos | currency: 'BRL' }}</span>
+      </div>
+      <div class="resumo__item">
+        <span class="resumo__rotulo">Líquido total</span>
+        <span class="resumo__valor">{{ totais().liquido | currency: 'BRL' }}</span>
+      </div>
+      <div class="resumo__item" [class.resumo__item--perigo]="totais().bloqueados">
+        <span class="resumo__rotulo">Funcionários bloqueados</span>
+        <span class="resumo__valor">{{ totais().bloqueados }}</span>
+      </div>
+    </section>
+
+    <section class="painel" aria-labelledby="titulo-itens">
+      <header class="painel__cabecalho">
+        <div>
+          <h2 id="titulo-itens" class="painel__titulo">Por funcionário</h2>
+          <p class="painel__subtitulo">Clique numa linha para ver a memória de cálculo.</p>
+        </div>
+      </header>
+      <div class="rolagem">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th scope="col">Funcionário</th>
+              <th scope="col" class="numero">Salário base</th>
+              <th scope="col" class="numero">Horas extras</th>
+              <th scope="col" class="numero">Faltas</th>
+              <th scope="col" class="numero">Descontos</th>
+              <th scope="col" class="numero">Líquido</th>
+              <th scope="col">Situação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of itens.value(); track i.id) {
+              <tr class="linha" [class.linha--bloqueada]="i.bloqueio" (click)="itemAberto.set(i)">
+                <td>
+                  <span class="funcionario">
+                    <app-avatar [nome]="i.funcionarioNome" />
+                    <span>
+                      <!-- O botão dá o acesso por teclado; o clique na linha é atalho para mouse -->
+                      <button type="button" class="funcionario__nome" (click)="$event.stopPropagation(); itemAberto.set(i)">
+                        {{ i.funcionarioNome }}
+                      </button>
+                      <span class="funcionario__cargo">{{ i.cargo }}</span>
+                    </span>
+                  </span>
+                </td>
+                <td class="numero">{{ i.salarioBase | currency: 'BRL' }}</td>
+                <td class="numero">
+                  {{ i.valorHorasExtras | currency: 'BRL' }}
+                  @if (i.horasExtras) {
+                    <span class="detalhe">{{ i.horasExtras | number: '1.0-2' }} h</span>
+                  }
+                </td>
+                <td class="numero" [class.negativo]="i.valorFaltas">
+                  {{ i.valorFaltas ? '− ' : '' }}{{ i.valorFaltas | currency: 'BRL' }}
+                  @if (i.diasFalta) {
+                    <span class="detalhe">{{ i.diasFalta }} {{ i.diasFalta === 1 ? 'dia' : 'dias' }}</span>
+                  }
+                </td>
+                <td class="numero negativo">− {{ descontos(i) | currency: 'BRL' }}</td>
+                <td class="numero liquido">{{ i.liquido | currency: 'BRL' }}</td>
+                <td>
+                  @if (i.bloqueio) {
+                    <span class="situacao situacao--bloqueada">
+                      <app-icone nome="cadeado" [tamanho]="12" />
+                      Bloqueado: {{ i.bloqueio }}
+                    </span>
+                  } @else {
+                    <span class="situacao situacao--ok">OK</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Total</th>
+              <td class="numero">{{ totais().salarioBase | currency: 'BRL' }}</td>
+              <td class="numero">{{ totais().horasExtras | currency: 'BRL' }}</td>
+              <td class="numero negativo">− {{ totais().faltas | currency: 'BRL' }}</td>
+              <td class="numero negativo">− {{ totais().descontos | currency: 'BRL' }}</td>
+              <td class="numero liquido">{{ totais().liquido | currency: 'BRL' }}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+  }
+
+  <app-memoria-drawer
+    [item]="itemAberto()"
+    [competenciaNome]="competencia.nome()"
+    [previa]="f.status !== 'FECHADA'"
+    (fechar)="itemAberto.set(null)"
+  />
+
+  @if (papel(); as p) {
+    <app-pendencia-drawer [pendencia]="pendenciaAberta()" [papel]="p" (fechar)="pendenciaAberta.set(null)" />
+  }
+
+  <dialog #confirmacao class="confirmacao" aria-labelledby="confirmacao-titulo">
+    <h2 id="confirmacao-titulo" class="confirmacao__titulo">Fechar a folha de {{ competencia.nome() }}?</h2>
+    <p class="confirmacao__texto">
+      Depois de fechada, a folha não pode ser recalculada e o Financeiro poderá publicar os holerites.
+    </p>
+    <div class="confirmacao__acoes">
+      <button type="button" class="botao-secundario" (click)="confirmacao.close()">Cancelar</button>
+      <button type="button" class="botao-primario" (click)="confirmarFechamento()">Fechar folha</button>
+    </div>
+  </dialog>
+} @else {
+  <app-page-header titulo="Folha de pagamento" />
+  <span class="skeleton esqueleto-status" aria-hidden="true"></span>
+  <span class="skeleton esqueleto-tabela" aria-hidden="true"></span>
+  <p class="sr-only" role="status">Carregando a folha…</p>
+}

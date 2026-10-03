@@ -1,0 +1,41 @@
+<div class="rolagem">
+  <table class="tabela">
+    <thead>
+      <tr>
+        <th scope="col">Título</th>
+        @if (mostrarFuncionario()) {
+          <th scope="col">Funcionário</th>
+        }
+        <th scope="col">Com quem está</th>
+        <th scope="col">Prazo</th>
+        <th scope="col">Status</th>
+        <th scope="col">Atualizada</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of pendencias(); track p.id) {
+        <tr class="linha" [class.linha--atrasada]="p.atrasada" (click)="abrir.emit(p)">
+          <td>
+            <!-- O botão dá o acesso por teclado; o clique na linha toda é atalho para mouse -->
+            <button type="button" class="titulo" (click)="$event.stopPropagation(); abrir.emit(p)">
+              {{ p.titulo }}
+            </button>
+            <span class="tipo">{{ nomeTipo[p.tipo] }}</span>
+          </td>
+          @if (mostrarFuncionario()) {
+            <td>
+              <span class="funcionario">
+                <app-avatar [nome]="p.funcionarioNome" />
+                {{ p.funcionarioNome }}
+              </span>
+            </td>
+          }
+          <td><app-setor-badge [setor]="p.setorResponsavel" /></td>
+          <td><app-prazo-label [prazo]="p.prazo" [atrasada]="p.atrasada" /></td>
+          <td><app-status-badge [status]="p.status" /></td>
+          <td class="atualizada">{{ p.ultimaAtualizacao | tempoRelativo }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

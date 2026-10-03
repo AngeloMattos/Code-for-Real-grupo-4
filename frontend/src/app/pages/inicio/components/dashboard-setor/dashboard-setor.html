@@ -1,0 +1,129 @@
+<app-page-header titulo="Início" [descricao]="descricao()">
+  @if (podeCriar()) {
+    <a class="botao-primario" routerLink="/pendencias/nova">
+      <app-icone nome="mais" />
+      Nova pendência
+    </a>
+  }
+</app-page-header>
+
+@if (dashboard.error()) {
+  <div class="painel">
+    <app-empty-state
+      icone="alerta"
+      titulo="Não foi possível carregar o dashboard"
+      texto="Verifique sua conexão e tente de novo."
+    >
+      <button type="button" class="botao-secundario" (click)="dashboard.reload()">Tentar de novo</button>
+    </app-empty-state>
+  </div>
+} @else if (dashboard.value(); as d) {
+  <section class="kpis" aria-label="Indicadores">
+    <app-kpi-card
+      rotulo="Abertas"
+      icone="pendencias"
+      [valor]="d.kpis.abertas"
+      detalhe="Pendências em andamento"
+      [filtro]="{ aba: 'todas' }"
+    />
+    <app-kpi-card
+      rotulo="Vencem em 3 dias"
+      icone="relogio"
+      [valor]="d.kpis.vencemEm3Dias"
+      [tom]="d.kpis.vencemEm3Dias ? 'alerta' : 'neutro'"
+      detalhe="Prazo até 3 dias"
+      [filtro]="{ aba: 'vencem' }"
+    />
+    <app-kpi-card
+      rotulo="Atrasadas"
+      icone="triangulo"
+      [valor]="d.kpis.atrasadas"
+      [tom]="d.kpis.atrasadas ? 'perigo' : 'neutro'"
+      detalhe="Prazo já vencido"
+      [filtro]="{ aba: 'atrasadas' }"
+    />
+    <app-kpi-card
+      rotulo="Aguardando validação"
+      icone="ampulheta"
+      [valor]="d.kpis.aguardandoValidacao"
+      detalhe="Documentos com o RH"
+      [filtro]="{ setor: 'RH', tipo: 'documentos' }"
+    />
+  </section>
+
+  <section class="painel" aria-labelledby="titulo-acao">
+    <header class="painel__cabecalho">
+      <div>
+        <h2 id="titulo-acao" class="painel__titulo">Precisa da sua ação</h2>
+        <p class="painel__subtitulo">Pendências com {{ nomeSetor() }}, pelo prazo mais próximo.</p>
+      </div>
+      <a class="link-acao" routerLink="/pendencias" [queryParams]="{ aba: 'comigo' }">
+        Ver todas <app-icone nome="seta-direita" />
+      </a>
+    </header>
+
+    @if (d.precisaDaSuaAcao.length) {
+      <app-pendencias-table [pendencias]="d.precisaDaSuaAcao" (abrir)="abrir($event)" />
+    } @else {
+      <app-empty-state icone="check" titulo="Nenhuma pendência com você. Tudo em dia!" />
+    }
+  </section>
+
+  <div class="colunas">
+    <section class="painel" aria-labelledby="titulo-folha">
+      <header class="painel__cabecalho">
+        <div>
+          <h2 id="titulo-folha" class="painel__titulo">Fechamento da folha</h2>
+          <p class="painel__subtitulo">
+            {{ competencia.nome() }} · fecha em {{ d.fechamento.prazoFechamento | date: 'dd/MM' }}
+          </p>
+        </div>
+      </header>
+      <div class="painel__corpo folha">
+        <app-folha-stepper [etapaAtual]="d.fechamento.etapaAtual" />
+
+        @if (d.fechamento.bloqueios) {
+          <a class="bloqueio bloqueio--sim" routerLink="/pendencias" [queryParams]="{ bloqueantes: 1 }">
+            <app-icone nome="cadeado" />
+            Bloqueada por {{ d.fechamento.bloqueios }}
+            {{ d.fechamento.bloqueios === 1 ? 'pendência' : 'pendências' }}
+            <app-icone nome="seta-direita" class="bloqueio__seta" />
+          </a>
+        } @else {
+          <p class="bloqueio bloqueio--nao">
+            <app-icone nome="check" />
+            Sem bloqueios: a folha pode seguir.
+          </p>
+        }
+      </div>
+    </section>
+
+    <section class="painel" aria-labelledby="titulo-atividades">
+      <header class="painel__cabecalho">
+        <h2 id="titulo-atividades" class="painel__titulo">Últimas atividades</h2>
+      </header>
+      <div class="painel__corpo">
+        @if (d.atividades.length) {
+          <app-timeline [itens]="d.atividades" />
+        } @else {
+          <app-empty-state icone="caixa" titulo="Nenhuma atividade ainda" />
+        }
+      </div>
+    </section>
+  </div>
+} @else {
+  <!-- Carregando: skeleton no formato do conteúdo -->
+  <div class="kpis" aria-hidden="true">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <span class="skeleton esqueleto-kpi"></span>
+    }
+  </div>
+  <div class="painel esqueleto-tabela" aria-hidden="true">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <span class="skeleton"></span>
+    }
+  </div>
+  <p class="sr-only" role="status">Carregando o dashboard…</p>
+}
+
+<app-pendencia-drawer [pendencia]="selecionada()" [papel]="papel()" (fechar)="selecionada.set(null)" />

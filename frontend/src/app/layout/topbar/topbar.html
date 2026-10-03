@@ -1,0 +1,71 @@
+<button type="button" class="icone-botao hamburguer" aria-label="Abrir menu" (click)="abrirMenu.emit()">
+  <app-icone nome="menu" [tamanho]="20" />
+</button>
+
+<form class="busca" role="search" (submit)="buscar($event, campoBusca.value)">
+  <label for="busca-global" class="sr-only">Buscar funcionário ou pendência</label>
+  <app-icone nome="busca" class="busca__icone" />
+  <input
+    #campoBusca
+    id="busca-global"
+    type="search"
+    class="busca__input"
+    placeholder="Buscar funcionário ou pendência"
+    autocomplete="off"
+  />
+</form>
+
+<div class="acoes">
+  <label class="competencia">
+    <span class="sr-only">Competência</span>
+    <app-icone nome="calendario" />
+    <select
+      class="competencia__select"
+      (change)="trocarCompetencia($any($event.target).value)"
+    >
+      @for (opcao of competencia.opcoes; track opcao) {
+        <option [value]="opcao" [selected]="opcao === competencia.atual()">{{ nomeCompetencia(opcao) }}</option>
+      }
+    </select>
+    <app-icone nome="seta-baixo" class="competencia__seta" />
+  </label>
+
+  <button
+    type="button"
+    class="icone-botao sino"
+    [attr.aria-label]="naoLidas() ? 'Notificações: ' + naoLidas() + ' não lidas' : 'Notificações'"
+  >
+    <app-icone nome="sino" [tamanho]="20" />
+    @if (naoLidas()) {
+      <span class="sino__contador" aria-hidden="true">{{ naoLidas() }}</span>
+    }
+  </button>
+
+  <div class="usuario">
+    <button
+      type="button"
+      class="usuario__botao"
+      aria-haspopup="true"
+      [attr.aria-expanded]="menuUsuarioAberto()"
+      aria-controls="menu-usuario"
+      (click)="menuUsuarioAberto.set(!menuUsuarioAberto())"
+    >
+      <app-avatar [nome]="usuario().nome" [setor]="papel()" [tamanho]="32" />
+      <span class="usuario__nome">{{ usuario().nome }}</span>
+      <app-icone nome="seta-baixo" />
+    </button>
+
+    @if (menuUsuarioAberto()) {
+      <div id="menu-usuario" class="usuario__menu">
+        <div class="usuario__cabecalho">
+          <strong>{{ usuario().nome }}</strong>
+          <span>{{ nomeSetor[papel()] }} · {{ usuario().empresa?.nomeFantasia }}</span>
+        </div>
+        <button type="button" class="usuario__opcao" (click)="sair()">
+          <app-icone nome="sair" />
+          Sair
+        </button>
+      </div>
+    }
+  </div>
+</div>

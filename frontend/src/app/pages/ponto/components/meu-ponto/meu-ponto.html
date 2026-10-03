@@ -1,0 +1,138 @@
+<app-page-header
+  titulo="Meu ponto"
+  [descricao]="'Registre entrada e saída e acompanhe suas marcações de ' + competencia.nome() + '.'"
+/>
+
+<!-- Registro de hoje -->
+<section class="painel hoje" aria-labelledby="titulo-hoje">
+  <div class="hoje__relogio">
+    <h2 id="titulo-hoje" class="hoje__data">{{ agora() | date: "EEEE, dd 'de' MMMM" }}</h2>
+    <span class="hoje__hora">{{ agora() | date: 'HH:mm:ss' }}</span>
+  </div>
+
+  <div class="hoje__marcacoes">
+    <div class="marcacao">
+      <span class="marcacao__rotulo">Entrada</span>
+      @if (hoje.isLoading()) {
+        <span class="skeleton esqueleto-hora"></span>
+      } @else {
+        <span class="marcacao__valor" [class.vazio]="!hoje.value()?.entrada">{{ hoje.value()?.entrada ?? '—' }}</span>
+      }
+    </div>
+    <div class="marcacao">
+      <span class="marcacao__rotulo">Saída</span>
+      @if (hoje.isLoading()) {
+        <span class="skeleton esqueleto-hora"></span>
+      } @else {
+        <span class="marcacao__valor" [class.vazio]="!hoje.value()?.saida">{{ hoje.value()?.saida ?? '—' }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="hoje__acao">
+    @if (proxima(); as p) {
+      <button
+        type="button"
+        class="botao-primario"
+        [disabled]="registrando() || hoje.isLoading()"
+        (click)="registrar()"
+      >
+        <app-icone [nome]="registrando() ? 'carregando' : 'relogio'" />
+        {{ p === 'entrada' ? 'Registrar entrada' : 'Registrar saída' }}
+      </button>
+    } @else {
+      <span class="concluido">
+        <app-icone nome="check" /> Jornada de hoje registrada · {{ horas(hoje.value()?.totalMinutos ?? null) }}
+      </span>
+    }
+    @if (erroRegistro()) {
+      <span class="campo__erro" role="alert">{{ erroRegistro() }}</span>
+    }
+  </div>
+</section>
+
+@if (registros.error()) {
+  <div class="painel">
+    <app-empty-state icone="alerta" titulo="Não foi possível carregar o ponto" texto="Verifique sua conexão e tente de novo.">
+      <button type="button" class="botao-secundario" (click)="registros.reload()">Tentar de novo</button>
+    </app-empty-state>
+  </div>
+} @else if (registros.isLoading() && !registros.hasValue()) {
+  <span class="skeleton esqueleto-tabela" aria-hidden="true"></span>
+  <p class="sr-only" role="status">Carregando o ponto…</p>
+} @else {
+  <section class="resumo" aria-label="Resumo do mês">
+    <div class="resumo__item">
+      <span class="resumo__rotulo">Dias trabalhados</span>
+      <span class="resumo__valor">{{ resumo().dias }}</span>
+    </div>
+    <div class="resumo__item">
+      <span class="resumo__rotulo">Horas trabalhadas</span>
+      <span class="resumo__valor">{{ horas(resumo().minutosTrabalhados) }}</span>
+    </div>
+    <div class="resumo__item">
+      <span class="resumo__rotulo">Horas extras</span>
+      <span class="resumo__valor">{{ horas(resumo().minutosExtras) }}</span>
+    </div>
+    <div class="resumo__item" [class.resumo__item--perigo]="resumo().faltando">
+      <span class="resumo__rotulo">Marcações faltando</span>
+      <span class="resumo__valor">{{ resumo().faltando }}</span>
+    </div>
+  </section>
+
+  <section class="painel" aria-labelledby="titulo-historico">
+    <header class="painel__cabecalho">
+      <div>
+        <h2 id="titulo-historico" class="painel__titulo">Marcações de {{ competencia.nome() }}</h2>
+        <p class="painel__subtitulo">Marcação faltando? Peça o ajuste ao RH.</p>
+      </div>
+    </header>
+
+    @if (linhas().length) {
+      <div class="rolagem">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th scope="col">Dia</th>
+              <th scope="col" class="numero">Entrada</th>
+              <th scope="col" class="numero">Saída</th>
+              <th scope="col" class="numero">Total</th>
+              <th scope="col" class="numero">Horas extras</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of linhas(); track r.data) {
+              <tr [class.linha--faltando]="precisaAjuste(r)">
+                <td class="dia">{{ data(r.data) | date: 'EEE, dd/MM' }}</td>
+                <td class="numero" [class.vazio]="!r.entrada">{{ r.entrada ?? '—' }}</td>
+                <td class="numero" [class.vazio]="!r.saida && r.situacao !== 'EM_ANDAMENTO'">{{ r.saida ?? '—' }}</td>
+                <td class="numero">{{ horas(r.totalMinutos) }}</td>
+                <td class="numero" [class.extra]="r.extrasMinutos">
+                  {{ r.extrasMinutos ? '+' + horas(r.extrasMinutos) : '—' }}
+                </td>
+                <td>
+                  <span class="situacao" [class]="'situacao--' + r.situacao.toLowerCase()">{{ rotuloSituacao(r) }}</span>
+                </td>
+                <td class="acao">
+                  @if (precisaAjuste(r)) {
+                    <button type="button" class="botao-ajuste" (click)="pedirAjuste(r)">
+                      <app-icone nome="enviar-arquivo" /> Pedir ajuste
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <app-empty-state
+        icone="relogio"
+        titulo="Nenhuma marcação nesta competência"
+        texto="Escolha outro mês no seletor da barra superior."
+      />
+    }
+  </section>
+}

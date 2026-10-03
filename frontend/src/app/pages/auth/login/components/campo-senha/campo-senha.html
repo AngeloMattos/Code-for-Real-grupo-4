@@ -1,0 +1,29 @@
+<div class="campo">
+  <div class="campo__linha">
+    <label class="campo__rotulo" for="senha">Senha</label>
+    <a class="campo__link" routerLink="/recuperar-senha">Esqueci minha senha</a>
+  </div>
+  <div class="campo__senha">
+    <input
+      id="senha"
+      class="campo__input"
+      autocomplete="current-password"
+      aria-describedby="senha-erro"
+      [formControl]="controle()"
+      [type]="visivel() ? 'text' : 'password'"
+      [attr.aria-invalid]="controle().touched && controle().invalid"
+    />
+    <button
+      type="button"
+      class="campo__olho"
+      [attr.aria-label]="visivel() ? 'Ocultar senha' : 'Mostrar senha'"
+      [attr.aria-pressed]="visivel()"
+      (click)="visivel.set(!visivel())"
+    >
+      <app-icone [nome]="visivel() ? 'olho-fechado' : 'olho'" />
+    </button>
+  </div>
+  @if (controle().touched && controle().invalid) {
+    <span id="senha-erro" class="campo__erro">Informe sua senha.</span>
+  }
+</div>

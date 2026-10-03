@@ -1,0 +1,23 @@
+<ol class="etapas">
+  @for (etapa of etapas(); track etapa.id) {
+    <li
+      class="etapa"
+      [class]="'etapa--' + etapa.estado"
+      [attr.aria-current]="etapa.estado === 'atual' ? 'step' : null"
+    >
+      <span class="etapa__marca">
+        @if (etapa.estado === 'feita') {
+          <app-icone nome="check" [tamanho]="16" />
+        } @else {
+          {{ etapa.numero }}
+        }
+      </span>
+      <span class="etapa__rotulo">{{ etapa.rotulo }}</span>
+      @if (etapa.estado === 'feita') {
+        <span class="sr-only">(concluída)</span>
+      } @else if (etapa.estado === 'atual') {
+        <span class="sr-only">(etapa atual)</span>
+      }
+    </li>
+  }
+</ol>

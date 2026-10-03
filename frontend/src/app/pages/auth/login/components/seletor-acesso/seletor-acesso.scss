@@ -1,0 +1,32 @@
+.abas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 24px;
+  padding: 4px;
+  border-radius: var(--raio-controle);
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-borda);
+
+  &__item {
+    height: 36px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--cor-texto-secundario);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+
+    &:hover {
+      color: var(--cor-texto);
+    }
+
+    &[aria-selected='true'] {
+      background: var(--cor-superficie);
+      color: var(--cor-marca);
+      font-weight: 600;
+      box-shadow: 0 0 0 1px var(--cor-borda);
+    }
+  }
+}

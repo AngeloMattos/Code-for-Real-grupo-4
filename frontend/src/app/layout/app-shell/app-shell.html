@@ -1,0 +1,23 @@
+@if (usuario(); as u) {
+  @if (papel(); as p) {
+    <app-sidebar
+      class="shell__sidebar"
+      [class.shell__sidebar--aberta]="menuAberto()"
+      [itens]="itens()"
+      [usuario]="u"
+      [papel]="p"
+      (fechar)="menuAberto.set(false)"
+    />
+
+    @if (menuAberto()) {
+      <div class="shell__fundo" aria-hidden="true" (click)="menuAberto.set(false)"></div>
+    }
+
+    <div class="shell__principal">
+      <app-topbar class="shell__topbar" [usuario]="u" [papel]="p" (abrirMenu)="menuAberto.set(true)" />
+      <main class="shell__conteudo">
+        <router-outlet />
+      </main>
+    </div>
+  }
+}

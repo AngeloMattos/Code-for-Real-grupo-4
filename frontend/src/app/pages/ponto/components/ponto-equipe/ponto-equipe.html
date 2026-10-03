@@ -1,0 +1,168 @@
+<app-page-header
+  titulo="Ponto da equipe"
+  [descricao]="'Entradas e saídas de ' + competencia.nome() + '. Marcação faltando vira pendência.'"
+/>
+
+@if (registros.error()) {
+  <div class="painel">
+    <app-empty-state icone="alerta" titulo="Não foi possível carregar o ponto" texto="Verifique sua conexão e tente de novo.">
+      <button type="button" class="botao-secundario" (click)="registros.reload()">Tentar de novo</button>
+    </app-empty-state>
+  </div>
+} @else if (registros.isLoading()) {
+  <div class="filtros" aria-hidden="true">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <span class="skeleton esqueleto-chip"></span>
+    }
+  </div>
+  <span class="skeleton esqueleto-tabela" aria-hidden="true"></span>
+  <p class="sr-only" role="status">Carregando o ponto…</p>
+} @else if (!dias().length) {
+  <div class="painel">
+    <app-empty-state
+      icone="relogio"
+      titulo="Nenhuma marcação nesta competência"
+      texto="Escolha outro mês no seletor da barra superior."
+    />
+  </div>
+} @else {
+  <!-- Filtro por setor -->
+  <div class="filtros" role="group" aria-label="Filtrar por setor">
+    <button
+      type="button"
+      class="chip"
+      [attr.aria-pressed]="setor() === todos"
+      (click)="setor.set(todos)"
+    >
+      Todos os setores <span class="chip__contador">{{ totalFuncionarios() }}</span>
+    </button>
+    @for (s of setores(); track s.nome) {
+      <button
+        type="button"
+        class="chip"
+        [attr.aria-pressed]="setor() === s.nome"
+        (click)="setor.set(s.nome)"
+      >
+        {{ s.nome }} <span class="chip__contador">{{ s.funcionarios }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="barra">
+    <label class="campo-inline">
+      <app-icone nome="calendario" />
+      <span class="sr-only">Dia</span>
+      <select class="campo-inline__select" (change)="dia.set($any($event.target).value)">
+        <option [value]="todos" [selected]="dia() === todos">Mês inteiro</option>
+        @for (d of dias(); track d) {
+          <option [value]="d" [selected]="dia() === d">{{ data(d) | date: 'EEEE, dd/MM' }}</option>
+        }
+      </select>
+      <app-icone nome="seta-baixo" class="campo-inline__seta" />
+    </label>
+
+    <label class="alternar">
+      <input type="checkbox" [checked]="soFaltando()" (change)="soFaltando.set($any($event.target).checked)" />
+      Só marcações faltando
+    </label>
+
+    @if (filtrosAtivos()) {
+      <button type="button" class="limpar" (click)="limparFiltros()">
+        <app-icone nome="fechar" /> Limpar filtros
+      </button>
+    }
+  </div>
+
+  <!-- Resumo do recorte escolhido -->
+  <section class="resumo" aria-label="Resumo">
+    <div class="resumo__item">
+      <span class="resumo__rotulo">Funcionários</span>
+      <span class="resumo__valor">{{ resumo().funcionarios }}</span>
+    </div>
+    <div class="resumo__item" [class.resumo__item--perigo]="resumo().faltando">
+      <span class="resumo__rotulo">Marcações faltando</span>
+      <span class="resumo__valor">{{ resumo().faltando }}</span>
+    </div>
+    <div class="resumo__item">
+      <span class="resumo__rotulo">Horas trabalhadas</span>
+      <span class="resumo__valor">{{ horas(resumo().minutosTrabalhados) }}</span>
+    </div>
+    <div class="resumo__item">
+      <span class="resumo__rotulo">Horas extras</span>
+      <span class="resumo__valor">{{ horas(resumo().minutosExtras) }}</span>
+    </div>
+  </section>
+
+  <section class="painel">
+    @if (grupos().length) {
+      <div class="rolagem">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th scope="col">Funcionário</th>
+              <th scope="col">Dia</th>
+              <th scope="col" class="numero">Entrada</th>
+              <th scope="col" class="numero">Saída</th>
+              <th scope="col" class="numero">Total</th>
+              <th scope="col" class="numero">Horas extras</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
+          @for (grupo of grupos(); track grupo.nome) {
+            <tbody>
+              <tr class="grupo">
+                <th scope="colgroup" colspan="8">
+                  {{ grupo.nome }}
+                  <span class="grupo__info">
+                    {{ grupo.linhas.length }} {{ grupo.linhas.length === 1 ? 'registro' : 'registros' }}
+                    @if (grupo.faltando) {
+                      · <span class="grupo__faltando">{{ grupo.faltando }} com marcação faltando</span>
+                    }
+                  </span>
+                </th>
+              </tr>
+              @for (r of grupo.linhas; track r.id) {
+                <tr [class.linha--faltando]="precisaAjuste(r)">
+                  <td>
+                    <span class="funcionario">
+                      <app-avatar [nome]="r.funcionarioNome" />
+                      {{ r.funcionarioNome }}
+                    </span>
+                  </td>
+                  <td class="dia">{{ data(r.data) | date: 'EEE, dd/MM' }}</td>
+                  <td class="numero" [class.vazio]="!r.entrada">{{ r.entrada ?? '—' }}</td>
+                  <td class="numero" [class.vazio]="!r.saida">{{ r.saida ?? '—' }}</td>
+                  <td class="numero">{{ horas(r.totalMinutos) }}</td>
+                  <td class="numero" [class.extra]="r.extrasMinutos">
+                    {{ r.extrasMinutos ? '+' + horas(r.extrasMinutos) : '—' }}
+                  </td>
+                  <td>
+                    <span class="situacao" [class]="'situacao--' + r.situacao.toLowerCase()">
+                      {{ rotuloSituacao(r) }}
+                    </span>
+                  </td>
+                  <td class="acao">
+                    @if (precisaAjuste(r)) {
+                      <button type="button" class="botao-pendencia" (click)="criarPendencia(r)">
+                        <app-icone nome="mais" /> Criar pendência
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          }
+        </table>
+      </div>
+    } @else {
+      <app-empty-state
+        icone="check"
+        titulo="Nenhuma marcação faltando"
+        texto="Todos os registros deste recorte estão completos."
+      >
+        <button type="button" class="botao-secundario" (click)="limparFiltros()">Limpar filtros</button>
+      </app-empty-state>
+    }
+  </section>
+}

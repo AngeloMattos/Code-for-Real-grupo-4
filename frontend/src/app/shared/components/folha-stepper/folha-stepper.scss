@@ -1,0 +1,106 @@
+:host {
+  display: block;
+}
+
+.etapas {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.etapa {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+
+  // Trilho entre as etapas
+  &:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: 13px;
+    right: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--cor-borda);
+  }
+
+  &__marca {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--cor-borda);
+    border-radius: 50%;
+    background: var(--cor-superficie);
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+    font-weight: 600;
+  }
+
+  &__rotulo {
+    font-size: var(--texto-legenda);
+    color: var(--cor-texto-secundario);
+  }
+
+  &--feita {
+    &:not(:first-child)::before {
+      background: var(--cor-marca);
+    }
+
+    .etapa__marca {
+      border-color: var(--cor-marca);
+      background: var(--cor-marca);
+      color: #fff;
+    }
+  }
+
+  &--atual {
+    &:not(:first-child)::before {
+      background: var(--cor-marca);
+    }
+
+    .etapa__marca {
+      border-color: var(--cor-marca);
+      background: var(--cor-marca-suave);
+      color: var(--cor-marca);
+    }
+
+    .etapa__rotulo {
+      color: var(--cor-texto);
+      font-weight: 600;
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .etapas {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .etapa {
+    grid-template-columns: 28px 1fr;
+    justify-items: start;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+
+    &:not(:first-child)::before {
+      top: -12px;
+      left: 13px;
+      right: auto;
+      width: 2px;
+      height: 12px;
+    }
+
+    &__rotulo {
+      font-size: var(--texto-base);
+    }
+  }
+}

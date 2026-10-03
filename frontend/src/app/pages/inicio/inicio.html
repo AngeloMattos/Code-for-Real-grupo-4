@@ -1,0 +1,5 @@
+@if (papel() === 'FUNCIONARIO') {
+  <app-dashboard-funcionario />
+} @else if (papelSetor(); as p) {
+  <app-dashboard-setor [papel]="p" />
+}

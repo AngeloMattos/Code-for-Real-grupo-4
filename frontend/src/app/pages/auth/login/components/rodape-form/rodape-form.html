@@ -1,0 +1,15 @@
+@if (erro(); as mensagem) {
+  <div class="aviso aviso--erro" role="alert">
+    <app-icone nome="alerta" />
+    {{ mensagem }}
+  </div>
+}
+
+<button type="submit" class="botao-primario" [disabled]="carregando()">
+  @if (carregando()) {
+    <app-icone nome="carregando" />
+    Entrando…
+  } @else {
+    Entrar
+  }
+</button>

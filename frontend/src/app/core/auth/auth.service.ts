@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { map, Observable, tap } from 'rxjs';
 
-import { LoginRequest, LoginResponse, Usuario } from '../models/usuario';
+import { LoginRequest, LoginResponse, Papel, Usuario } from '../models/usuario';
 import { AUTH_API } from './auth.api';
 
 const CHAVE_SESSAO = 'folha-conecta.sessao';
@@ -15,6 +15,8 @@ export class AuthService {
 
   readonly usuario = computed<Usuario | null>(() => this.sessao()?.usuario ?? null);
   readonly token = computed(() => this.sessao()?.accessToken ?? null);
+  /** Setor em que a pessoa está agora. A tela "Escolher setor" entra quando houver mais de um. */
+  readonly papel = computed<Papel | null>(() => this.usuario()?.papeis[0] ?? null);
 
   login(req: LoginRequest): Observable<Usuario> {
     return this.api.login(req).pipe(

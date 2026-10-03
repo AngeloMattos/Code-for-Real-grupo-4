@@ -200,7 +200,7 @@ public record MudarStatusRequest(
     String comentario) {}
 
 public record PendenciaResponse(
-    Long id, String titulo, TipoPendencia tipo, StatusPendencia status,
+    Long id, String titulo, String descricao, TipoPendencia tipo, StatusPendencia status,
     Papel setorResponsavel, String responsavelNome,
     Long funcionarioId, String funcionarioNome,
     LocalDate prazo, boolean atrasada,
@@ -208,6 +208,14 @@ public record PendenciaResponse(
 
     public static PendenciaResponse de(Pendencia p) { /* monta a partir da entidade */ }
 }
+
+// GET /pendencias/{id}/eventos, em ordem cronológica. O front mostra como chat:
+// comentários viram balões e mudanças de status viram linhas do sistema.
+public record PendenciaEventoResponse(
+    Long id, TipoEvento tipo, // CRIACAO, COMENTARIO, MUDANCA_STATUS
+    String autorNome, Papel autorSetor, String comentario,
+    StatusPendencia statusAnterior, StatusPendencia statusNovo,
+    LocalDateTime quando) {}
 ```
 
 ### Service
@@ -478,7 +486,7 @@ Todos sob `/api`, em JSON. Listas paginadas (`?page=0&size=20&sort=prazo,asc`).
 ### Outros
 
 - `GET /empresas/minhas` — carteira de empresas com status da folha e pendências. Contabilidade.
-- `GET /dashboard` — KPIs, "precisa da sua ação" e últimas atividades, conforme o papel. Todos.
+- `GET /dashboard` — KPIs, "precisa da sua ação" e últimas atividades, conforme o papel. Todos. Para o funcionário: `solicitacoes` em andamento e `respondidas` (até 5 concluídas, da mais recente).
 - `GET /notificacoes` e `PATCH /notificacoes/{id}/lida` — sino de notificações. Todos.
 - `GET`, `POST` e `PUT /admin/usuarios` — usuários e setores. Admin.
 

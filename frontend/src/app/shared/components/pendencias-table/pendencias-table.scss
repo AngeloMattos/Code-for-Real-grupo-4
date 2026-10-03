@@ -1,0 +1,78 @@
+:host {
+  display: block;
+}
+
+.rolagem {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+
+  th {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--cor-borda);
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--cor-borda);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+.linha {
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: var(--cor-fundo);
+  }
+
+  // Faixa vermelha à esquerda reforça o prazo vencido (o texto "atrasada" continua no prazo).
+  &--atrasada td:first-child {
+    box-shadow: inset 3px 0 0 var(--status-atrasada-texto);
+  }
+}
+
+.titulo {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--cor-marca);
+  }
+}
+
+.tipo {
+  font-size: var(--texto-legenda);
+  color: var(--cor-texto-secundario);
+}
+
+.funcionario {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.atualizada {
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+}

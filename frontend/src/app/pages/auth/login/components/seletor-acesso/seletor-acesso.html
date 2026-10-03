@@ -1,0 +1,16 @@
+<div class="abas" role="tablist" aria-label="Tipo de acesso" (keydown)="navegar($event)">
+  @for (opcao of opcoes; track opcao.tipo) {
+    <button
+      type="button"
+      role="tab"
+      class="abas__item"
+      aria-controls="painel-login"
+      [id]="'aba-' + opcao.tipo"
+      [attr.aria-selected]="aba() === opcao.tipo"
+      [attr.tabindex]="aba() === opcao.tipo ? 0 : -1"
+      (click)="aba.set(opcao.tipo)"
+    >
+      {{ opcao.rotulo }}
+    </button>
+  }
+</div>

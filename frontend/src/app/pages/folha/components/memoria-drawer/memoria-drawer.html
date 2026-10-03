@@ -1,0 +1,75 @@
+<dialog
+  #dialogo
+  class="drawer"
+  aria-labelledby="memoria-titulo"
+  (close)="fechar.emit()"
+  (click)="cliqueNoFundo($event)"
+>
+  @if (item(); as i) {
+    <div class="drawer__painel">
+      <header class="drawer__cabecalho">
+        <div class="drawer__topo">
+          <span class="drawer__rotulo">Memória de cálculo · {{ competenciaNome() }}</span>
+          <button type="button" class="drawer__fechar" aria-label="Fechar memória de cálculo" (click)="dialogo.close()">
+            <app-icone nome="fechar" />
+          </button>
+        </div>
+        <h2 id="memoria-titulo" class="drawer__titulo">{{ i.funcionarioNome }}</h2>
+        <p class="drawer__subtitulo">{{ i.cargo }} · {{ i.departamento }}</p>
+      </header>
+
+      <div class="drawer__corpo">
+        @if (i.bloqueio) {
+          <p class="aviso aviso--erro">
+            <app-icone nome="cadeado" />
+            Bloqueado: {{ i.bloqueio }}. Este valor pode mudar quando a pendência for resolvida.
+          </p>
+        }
+
+        <section aria-labelledby="memoria-proventos">
+          <h3 id="memoria-proventos" class="secao">Proventos</h3>
+          <ul class="linhas">
+            @for (l of proventos(); track l.rotulo) {
+              <li class="linha">
+                <span class="linha__rotulo">{{ l.rotulo }}</span>
+                <span class="linha__valor">{{ l.valor | currency: 'BRL' }}</span>
+                <span class="linha__origem">{{ l.origem }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section aria-labelledby="memoria-descontos">
+          <h3 id="memoria-descontos" class="secao">Descontos</h3>
+          <ul class="linhas">
+            @for (l of descontos(); track l.rotulo) {
+              <li class="linha">
+                <span class="linha__rotulo">{{ l.rotulo }}</span>
+                <span class="linha__valor linha__valor--desconto">
+                  {{ l.valor ? '− ' : '' }}{{ l.valor | currency: 'BRL' }}
+                </span>
+                <span class="linha__origem">{{ l.origem }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+      </div>
+
+      <footer class="drawer__rodape">
+        <dl class="totais">
+          <dt>Proventos</dt>
+          <dd>{{ totalProventos() | currency: 'BRL' }}</dd>
+          <dt>Descontos</dt>
+          <dd class="totais__desconto">− {{ totalDescontos() | currency: 'BRL' }}</dd>
+          <dt class="totais__liquido">Líquido</dt>
+          <dd class="totais__liquido">{{ i.liquido | currency: 'BRL' }}</dd>
+        </dl>
+        @if (previa()) {
+          <p class="drawer__nota">
+            Prévia com cálculo simplificado: salário, horas extras, faltas, INSS, IRRF e VT.
+          </p>
+        }
+      </footer>
+    </div>
+  }
+</dialog>

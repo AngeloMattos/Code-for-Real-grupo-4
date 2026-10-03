@@ -1,6 +1,5 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { delay, Observable, of, throwError, timer, mergeMap } from 'rxjs';
+import { delay, Observable, of } from 'rxjs';
 
 import { LoginRequest, LoginResponse, Papel, TipoLogin, Usuario } from '../models/usuario';
 import { AuthApi } from './auth.api';
@@ -63,21 +62,22 @@ export const USUARIOS_DEMO: UsuarioDemo[] = [
 
 const QUINZE_MINUTOS = 15 * 60 * 1000;
 
+/** No e-mail da aba "Sou empresa", a primeira palavra-chave encontrada define o setor; sem nenhuma, entra como RH. */
+const SETOR_POR_EMAIL: [string, Papel][] = [
+  ['financeiro', 'FINANCEIRO'],
+  ['contab', 'CONTABILIDADE'],
+  ['admin', 'ADMIN'],
+  ['rh', 'RH'],
+];
+
+/**
+ * Login de demonstração: aceita qualquer CPF/e-mail e senha.
+ * "Sou funcionário" entra como Funcionário; "Sou empresa" entra no setor indicado pelo e-mail.
+ */
 @Injectable()
 export class AuthApiFake implements AuthApi {
   login(req: LoginRequest): Observable<LoginResponse> {
-    const encontrado = USUARIOS_DEMO.find(
-      (u) =>
-        u.tipo === req.tipo &&
-        normalizar(u.login) === normalizar(req.login) &&
-        u.senha === req.senha,
-    );
-
-    if (!encontrado) {
-      return timer(600).pipe(
-        mergeMap(() => throwError(() => new HttpErrorResponse({ status: 401 }))),
-      );
-    }
+    const encontrado = demoPara(req);
 
     return of({
       accessToken: `demo.${encontrado.papel.toLowerCase()}.${Date.now()}`,
@@ -87,6 +87,11 @@ export class AuthApiFake implements AuthApi {
   }
 }
 
-function normalizar(login: string): string {
-  return login.trim().toLowerCase().replace(/[.\-]/g, '');
+function demoPara(req: LoginRequest): UsuarioDemo {
+  const email = req.login.trim().toLowerCase();
+  const papel: Papel =
+    req.tipo === 'FUNCIONARIO'
+      ? 'FUNCIONARIO'
+      : (SETOR_POR_EMAIL.find(([chave]) => email.includes(chave))?.[1] ?? 'RH');
+  return USUARIOS_DEMO.find((u) => u.papel === papel)!;
 }

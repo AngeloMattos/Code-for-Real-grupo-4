@@ -1,0 +1,88 @@
+/* Peças visuais reutilizáveis (globais): painel, botão secundário, link de ação e skeleton. */
+
+.painel {
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-card);
+  background: var(--cor-superficie);
+
+  &__cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 16px;
+    border-bottom: 1px solid var(--cor-borda);
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: var(--texto-card);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  &__subtitulo {
+    margin: 2px 0 0;
+    color: var(--cor-texto-secundario);
+  }
+
+  &__corpo {
+    padding: 16px;
+  }
+}
+
+.botao-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-controle);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: var(--cor-marca);
+    color: var(--cor-marca);
+  }
+}
+
+.link-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Carregando: blocos cinza no formato do conteúdo, nunca spinner (docs/Desgin.md §5). */
+.skeleton {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #eef1f5 25%, #f6f8fb 50%, #eef1f5 75%);
+  background-size: 200% 100%;
+  animation: skeleton 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

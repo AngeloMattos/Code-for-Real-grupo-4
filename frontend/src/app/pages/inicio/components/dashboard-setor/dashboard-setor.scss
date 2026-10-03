@@ -1,0 +1,92 @@
+:host {
+  display: grid;
+  gap: 24px;
+}
+
+app-page-header {
+  margin-bottom: 0;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.colunas {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.folha {
+  display: grid;
+  gap: 20px;
+}
+
+.bloqueio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--raio-controle);
+  font-weight: 500;
+  text-decoration: none;
+
+  &--sim {
+    background: var(--status-atrasada-fundo);
+    color: var(--status-atrasada-texto);
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &--nao {
+    background: var(--status-concluida-fundo);
+    color: var(--status-concluida-texto);
+  }
+
+  &__seta {
+    margin-left: auto;
+  }
+}
+
+.esqueleto-kpi {
+  height: 116px;
+  border-radius: var(--raio-card);
+}
+
+.esqueleto-tabela {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+
+  .skeleton {
+    height: 36px;
+  }
+
+  .skeleton:first-child {
+    width: 40%;
+    height: 24px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .colunas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+}

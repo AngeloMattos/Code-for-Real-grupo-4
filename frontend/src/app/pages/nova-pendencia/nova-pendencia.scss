@@ -1,0 +1,253 @@
+:host {
+  display: block;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+  max-width: 1040px;
+}
+
+.formulario {
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+}
+
+.linha-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.campo__opcional {
+  color: var(--cor-texto-secundario);
+  font-weight: 400;
+}
+
+.campo__texto {
+  height: auto;
+  min-height: 96px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.selecao {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &__select {
+    padding-right: 36px;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  &__seta {
+    position: absolute;
+    right: 12px;
+    color: var(--cor-texto-secundario);
+    pointer-events: none;
+  }
+}
+
+/* ---------- Com quem fica ---------- */
+
+.destinos {
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: 6px;
+    padding: 0;
+  }
+
+  &__opcoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+.destino {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+
+  // O próprio rádio vira o ponto na cor do setor.
+  input {
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    border: 2px solid var(--setor);
+    border-radius: 50%;
+    appearance: none;
+    cursor: pointer;
+
+    &:checked {
+      background: var(--setor);
+    }
+  }
+
+  &:hover {
+    border-color: var(--setor);
+  }
+
+  &:has(input:checked) {
+    border-color: var(--setor);
+    background: var(--cor-fundo);
+    box-shadow: inset 0 0 0 1px var(--setor);
+  }
+
+  &:has(input:focus-visible) {
+    box-shadow: var(--foco);
+  }
+}
+
+/* ---------- Bloqueia a folha ---------- */
+
+.bloqueia {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 26px;
+  cursor: pointer;
+
+  input {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin: 3px 0 0;
+    accent-color: var(--cor-marca);
+  }
+
+  &__ajuda {
+    display: block;
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+  }
+}
+
+.rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+/* ---------- Resumo ---------- */
+
+.resumo {
+  position: sticky;
+  top: 88px;
+  padding: 20px;
+
+  &__titulo {
+    margin: 0 0 16px;
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__lista {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+
+    dt {
+      margin-top: 12px;
+      color: var(--cor-texto-secundario);
+      font-size: var(--texto-legenda);
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    dd {
+      display: grid;
+      justify-items: start;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__tipo {
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+  }
+
+  &__vazio {
+    color: var(--cor-texto-secundario);
+    font-style: italic;
+  }
+
+  &__bloqueio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 8px 10px;
+    border-radius: var(--raio-controle);
+    background: var(--status-atrasada-fundo);
+    color: var(--status-atrasada-texto);
+    font-size: var(--texto-legenda);
+    font-weight: 500;
+  }
+}
+
+/* ---------- Sucesso ---------- */
+
+.cartao-sucesso {
+  max-width: 640px;
+}
+
+.acoes-final {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .resumo {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .formulario {
+    padding: 16px;
+  }
+
+  .linha-dupla {
+    grid-template-columns: 1fr;
+  }
+
+  .bloqueia {
+    margin-top: 0;
+  }
+
+  .rodape {
+    flex-direction: column-reverse;
+  }
+}

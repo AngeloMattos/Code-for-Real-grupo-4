@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: folha-conecta-api
+  datasource:
+    url: jdbc:postgresql://localhost:5433/folhaconecta
+    username: folha
+    password: folha
+  jpa:
+    hibernate:
+      ddl-auto: validate        # quem cria tabela e o Flyway
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 5MB
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-ttl: 15m
+    refresh-ttl: 7d
+    cookie-seguro: ${COOKIE_SEGURO:false}   # true em producao (HTTPS)
+  cors:
+    origens: http://localhost:4200
+  uploads:
+    pasta: ./uploads

@@ -1,0 +1,322 @@
+:host {
+  display: grid;
+  gap: 16px;
+}
+
+app-page-header {
+  margin-bottom: 8px;
+}
+
+/* ---------- Filtros ---------- */
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: var(--cor-marca);
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--cor-marca);
+    background: var(--cor-marca-suave);
+    color: var(--cor-marca);
+  }
+
+  &__contador {
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--cor-fundo);
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  &[aria-pressed='true'] .chip__contador {
+    background: var(--cor-superficie);
+    color: var(--cor-marca);
+  }
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+.campo-inline {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--cor-texto-secundario);
+
+  > app-icone:first-child {
+    position: absolute;
+    left: 12px;
+    pointer-events: none;
+  }
+
+  &__select {
+    height: 40px;
+    padding: 0 32px 0 36px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-controle);
+    background: var(--cor-superficie);
+    color: var(--cor-texto);
+    font: inherit;
+    font-weight: 500;
+    text-transform: capitalize;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  &__seta {
+    position: absolute;
+    right: 10px;
+    pointer-events: none;
+  }
+}
+
+.alternar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+
+  input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--cor-marca);
+  }
+}
+
+.limpar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cor-marca);
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ---------- Resumo ---------- */
+
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  &__item {
+    display: grid;
+    gap: 2px;
+    padding: 12px 16px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-card);
+    background: var(--cor-superficie);
+
+    &--perigo .resumo__valor {
+      color: var(--status-atrasada-texto);
+    }
+  }
+
+  &__rotulo {
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+    font-weight: 500;
+  }
+
+  &__valor {
+    font-size: var(--texto-card);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ---------- Tabela ---------- */
+
+.rolagem {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+
+  th {
+    padding: 8px 16px;
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  thead th {
+    border-bottom: 1px solid var(--cor-borda);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--cor-borda);
+    vertical-align: middle;
+  }
+
+  tbody:last-child tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .numero {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.grupo th {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--cor-borda);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-size: var(--texto-base);
+  font-weight: 600;
+
+  .grupo__info {
+    margin-left: 8px;
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+    font-weight: 400;
+  }
+
+  .grupo__faltando {
+    color: var(--status-atrasada-texto);
+    font-weight: 500;
+  }
+}
+
+// Dia com marcação faltando fica destacado (docs/Desgin.md §5).
+.linha--faltando {
+  background: #fff8f8;
+
+  td:first-child {
+    box-shadow: inset 3px 0 0 var(--status-atrasada-texto);
+  }
+}
+
+.funcionario {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.dia {
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.vazio {
+  color: var(--status-atrasada-texto);
+  font-weight: 600;
+}
+
+.extra {
+  color: var(--setor-financeiro);
+  font-weight: 600;
+}
+
+.situacao {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: var(--texto-legenda);
+  font-weight: 500;
+  white-space: nowrap;
+
+  &--ok {
+    background: var(--status-concluida-fundo);
+    color: var(--status-concluida-texto);
+  }
+
+  &--em_andamento {
+    background: var(--status-aberta-fundo);
+    color: var(--status-aberta-texto);
+  }
+
+  &--marcacao_faltando,
+  &--sem_marcacao {
+    background: var(--status-atrasada-fundo);
+    color: var(--status-atrasada-texto);
+  }
+}
+
+.acao {
+  text-align: right;
+}
+
+.botao-pendencia {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-controle);
+  background: var(--cor-superficie);
+  font-size: var(--texto-legenda);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--cor-marca);
+    color: var(--cor-marca);
+  }
+}
+
+/* ---------- Carregando ---------- */
+
+.esqueleto-chip {
+  width: 120px;
+  height: 36px;
+  border-radius: 999px;
+}
+
+.esqueleto-tabela {
+  height: 360px;
+  border-radius: var(--raio-card);
+}
+
+@media (max-width: 900px) {
+  .resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

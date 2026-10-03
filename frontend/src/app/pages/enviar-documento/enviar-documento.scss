@@ -1,0 +1,172 @@
+:host {
+  display: block;
+}
+
+.cartao {
+  max-width: 640px;
+}
+
+.formulario {
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+}
+
+/* ---------- Para quem ---------- */
+
+.selecao {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &__select {
+    padding-right: 36px;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  &__seta {
+    position: absolute;
+    right: 12px;
+    color: var(--cor-texto-secundario);
+    pointer-events: none;
+  }
+}
+
+/* ---------- Área de soltar ---------- */
+
+.soltar {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 32px 16px;
+  border: 2px dashed var(--cor-borda);
+  border-radius: var(--raio-card);
+  background: var(--cor-fundo);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+
+  &:hover,
+  &:focus-within,
+  &--ativo {
+    border-color: var(--cor-marca);
+    background: var(--cor-marca-suave);
+  }
+
+  &:focus-within {
+    box-shadow: var(--foco);
+  }
+
+  &--erro {
+    border-color: var(--status-atrasada-texto);
+  }
+
+  &__icone {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 4px;
+    border-radius: 50%;
+    background: var(--cor-superficie);
+    color: var(--cor-marca);
+  }
+
+  &__titulo {
+    font-weight: 500;
+  }
+
+  &__link {
+    color: var(--cor-marca);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  &__dica {
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+  }
+}
+
+/* ---------- Arquivo escolhido ---------- */
+
+.arquivo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-controle);
+  background: var(--cor-superficie);
+
+  &__icone {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--raio-controle);
+    background: var(--status-concluida-fundo);
+    color: var(--status-concluida-texto);
+  }
+
+  &__texto {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__nome {
+    overflow: hidden;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__tamanho {
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-legenda);
+  }
+
+  &__remover {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--cor-texto-secundario);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--status-atrasada-fundo);
+      color: var(--status-atrasada-texto);
+    }
+  }
+}
+
+/* ---------- Rodapé ---------- */
+
+.rodape {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+
+  .botao-secundario {
+    height: 44px;
+  }
+}
+
+.acoes-final {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+
+  .botao-secundario {
+    height: 44px;
+  }
+}

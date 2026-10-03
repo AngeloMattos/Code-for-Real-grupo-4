@@ -1,0 +1,104 @@
+<app-page-header
+  titulo="Enviar documento"
+  descricao="Envie um atestado, pedido de férias ou alteração cadastral ao RH."
+/>
+
+@if (enviada(); as e) {
+  <section class="painel cartao">
+    <app-empty-state
+      icone="check"
+      titulo="Documento enviado ao RH"
+      [texto]="'“' + e.titulo + '” foi recebido com o protocolo #' + e.id + '. O RH analisa em até 2 dias úteis.'"
+    >
+      <div class="acoes-final">
+        <button type="button" class="botao-secundario" (click)="novoEnvio()">Enviar outro</button>
+        <a class="botao-primario" routerLink="/pendencias">Acompanhar pedido</a>
+      </div>
+    </app-empty-state>
+  </section>
+} @else {
+  <form class="painel cartao formulario" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <div class="campo">
+      <label class="campo__rotulo" for="titulo">Título do envio</label>
+      <input
+        id="titulo"
+        class="campo__input"
+        formControlName="titulo"
+        placeholder="Ex.: Atestado médico 02/10"
+        maxlength="120"
+        aria-describedby="titulo-erro"
+        [attr.aria-invalid]="form.controls.titulo.touched && form.controls.titulo.invalid"
+      />
+      @if (form.controls.titulo.touched && form.controls.titulo.invalid) {
+        <span id="titulo-erro" class="campo__erro">Dê um título para o envio.</span>
+      }
+    </div>
+
+    <div class="campo">
+      <label class="campo__rotulo" for="destino">Para quem</label>
+      <div class="selecao">
+        <select id="destino" class="campo__input selecao__select" formControlName="destino">
+          <option value="RH">RH · Recursos Humanos</option>
+        </select>
+        <app-icone nome="seta-baixo" class="selecao__seta" />
+      </div>
+    </div>
+
+    <div class="campo">
+      <span class="campo__rotulo" id="rotulo-arquivo">Documento</span>
+
+      @if (arquivo(); as a) {
+        <div class="arquivo">
+          <span class="arquivo__icone"><app-icone nome="arquivo-ok" [tamanho]="20" /></span>
+          <span class="arquivo__texto">
+            <span class="arquivo__nome">{{ a.name }}</span>
+            <span class="arquivo__tamanho">{{ tamanho(a.size) }}</span>
+          </span>
+          <button type="button" class="arquivo__remover" (click)="remover()" [attr.aria-label]="'Remover ' + a.name">
+            <app-icone nome="fechar" />
+          </button>
+        </div>
+      } @else {
+        <label
+          class="soltar"
+          [class.soltar--ativo]="arrastando()"
+          [class.soltar--erro]="erroArquivo()"
+          (dragenter)="aoArrastar($event, true)"
+          (dragover)="aoArrastar($event, true)"
+          (dragleave)="aoArrastar($event, false)"
+          (drop)="aoSoltar($event)"
+        >
+          <input
+            type="file"
+            class="sr-only"
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+            aria-labelledby="rotulo-arquivo"
+            aria-describedby="arquivo-dica arquivo-erro"
+            (change)="aoSelecionar($event)"
+          />
+          <span class="soltar__icone"><app-icone nome="enviar-arquivo" [tamanho]="24" /></span>
+          <span class="soltar__titulo">
+            Arraste o arquivo aqui ou <span class="soltar__link">clique para escolher</span>
+          </span>
+          <span id="arquivo-dica" class="soltar__dica">PDF, JPG ou PNG · até 10 MB</span>
+        </label>
+      }
+
+      @if (erroArquivo()) {
+        <span id="arquivo-erro" class="campo__erro">{{ erroArquivo() }}</span>
+      }
+    </div>
+
+    @if (erroEnvio()) {
+      <div class="aviso aviso--erro" role="alert"><app-icone nome="alerta" /> {{ erroEnvio() }}</div>
+    }
+
+    <div class="rodape">
+      <a class="botao-secundario" routerLink="/inicio">Cancelar</a>
+      <button type="submit" class="botao-primario" [disabled]="enviando()">
+        <app-icone [nome]="enviando() ? 'carregando' : 'enviar-arquivo'" />
+        {{ enviando() ? 'Enviando…' : 'Enviar ao RH' }}
+      </button>
+    </div>
+  </form>
+}
