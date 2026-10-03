@@ -1,11 +1,23 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import localePt from '@angular/common/locales/pt';
+import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
+import { AUTH_API } from './core/auth/auth.api';
+import { AuthApiFake } from './core/auth/auth.api.fake';
+import { authInterceptor } from './core/auth/auth.interceptor';
+
+registerLocaleData(localePt);
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes)
-  ]
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
+    // Dados fictícios até o Spring ficar pronto; depois: useClass: AuthApiHttp.
+    { provide: AUTH_API, useClass: AuthApiFake },
+  ],
 };

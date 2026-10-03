@@ -1,0 +1,203 @@
+<div class="login">
+  <!-- Painel da marca: some no celular (docs/Desgin.md §4) -->
+  <aside class="marca">
+    <div class="marca__logo">
+      <span class="marca__logo-icone"><app-icone nome="logo" [tamanho]="20" /></span>
+      Folha Conecta
+    </div>
+
+    <div class="marca__conteudo">
+      <h1 class="marca__titulo">Todas as pendências da folha em um só lugar</h1>
+      <p class="marca__texto">
+        Funcionário, RH, Financeiro e Contabilidade acompanhando o mesmo fluxo, sem trocar mensagens
+        para saber em que pé está cada coisa.
+      </p>
+
+      <ul class="marca__lista">
+        <li><app-icone nome="check" [tamanho]="18" /> O que aconteceu</li>
+        <li><app-icone nome="check" [tamanho]="18" /> O que está pendente</li>
+        <li><app-icone nome="check" [tamanho]="18" /> Quem precisa resolver</li>
+        <li><app-icone nome="check" [tamanho]="18" /> Qual é o prazo</li>
+      </ul>
+    </div>
+
+    <p class="marca__rodape">© 2026 Folha Conecta</p>
+  </aside>
+
+  <main class="area">
+    <div class="cartao">
+      <div class="cartao__logo-mobile">
+        <span class="marca__logo-icone"><app-icone nome="logo" [tamanho]="20" /></span>
+        Folha Conecta
+      </div>
+
+      <h2 class="cartao__titulo">Entrar</h2>
+      <p class="cartao__subtitulo">Escolha como você acessa o sistema.</p>
+
+      @if (sessaoExpirada) {
+        <div class="aviso aviso--info" role="status">
+          <app-icone nome="info" />
+          Sua sessão expirou. Entre de novo para continuar de onde parou.
+        </div>
+      }
+
+      <div class="abas" role="tablist" aria-label="Tipo de acesso" (keydown)="navegarAbas($event)">
+        <button
+          type="button"
+          role="tab"
+          id="aba-FUNCIONARIO"
+          class="abas__item"
+          aria-controls="painel-login"
+          [attr.aria-selected]="aba() === 'FUNCIONARIO'"
+          [attr.tabindex]="aba() === 'FUNCIONARIO' ? 0 : -1"
+          (click)="trocarAba('FUNCIONARIO')"
+        >
+          Sou funcionário
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="aba-EMPRESA"
+          class="abas__item"
+          aria-controls="painel-login"
+          [attr.aria-selected]="aba() === 'EMPRESA'"
+          [attr.tabindex]="aba() === 'EMPRESA' ? 0 : -1"
+          (click)="trocarAba('EMPRESA')"
+        >
+          Sou empresa
+        </button>
+      </div>
+
+      <div id="painel-login" role="tabpanel" [attr.aria-labelledby]="'aba-' + aba()">
+        @if (aba() === 'FUNCIONARIO') {
+          <form class="form" [formGroup]="funcionarioForm" (ngSubmit)="entrar()" novalidate>
+            <div class="campo">
+              <label class="campo__rotulo" for="cpf">CPF</label>
+              <input
+                id="cpf"
+                class="campo__input"
+                formControlName="cpf"
+                inputmode="numeric"
+                autocomplete="username"
+                placeholder="000.000.000-00"
+                maxlength="14"
+                [attr.aria-invalid]="funcionarioForm.controls.cpf.touched && funcionarioForm.controls.cpf.invalid"
+                aria-describedby="cpf-erro"
+                (input)="formatarCpf($event)"
+              />
+              @if (funcionarioForm.controls.cpf.touched && funcionarioForm.controls.cpf.invalid) {
+                <span id="cpf-erro" class="campo__erro">Informe os 11 dígitos do CPF.</span>
+              }
+            </div>
+
+            <ng-container
+              [ngTemplateOutlet]="campoSenha"
+              [ngTemplateOutletContext]="{ form: funcionarioForm }"
+            />
+            <ng-container [ngTemplateOutlet]="rodapeForm" />
+          </form>
+        } @else {
+          <form class="form" [formGroup]="empresaForm" (ngSubmit)="entrar()" novalidate>
+            <div class="campo">
+              <label class="campo__rotulo" for="email">E-mail corporativo</label>
+              <input
+                id="email"
+                type="email"
+                class="campo__input"
+                formControlName="email"
+                autocomplete="username"
+                placeholder="voce@empresa.com.br"
+                [attr.aria-invalid]="empresaForm.controls.email.touched && empresaForm.controls.email.invalid"
+                aria-describedby="email-erro"
+              />
+              @if (empresaForm.controls.email.touched && empresaForm.controls.email.invalid) {
+                <span id="email-erro" class="campo__erro">Informe um e-mail válido.</span>
+              }
+            </div>
+
+            <ng-container
+              [ngTemplateOutlet]="campoSenha"
+              [ngTemplateOutletContext]="{ form: empresaForm }"
+            />
+            <ng-container [ngTemplateOutlet]="rodapeForm" />
+          </form>
+        }
+      </div>
+
+      <p class="primeiro-acesso">
+        Primeiro acesso? <a routerLink="/primeiro-acesso">Criar minha senha</a>
+      </p>
+
+      @if (demos.length) {
+        <div class="demo">
+          <span class="demo__titulo">Entrar como demo</span>
+          <div class="demo__botoes">
+            @for (demo of demos; track demo.papel) {
+              <button
+                type="button"
+                class="demo__botao"
+                [class]="'demo__botao--' + demo.papel.toLowerCase()"
+                [disabled]="carregando()"
+                (click)="entrarComoDemo(demo)"
+              >
+                {{ demo.rotulo }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>
+
+<!-- Senha + "Esqueci minha senha": igual nas duas abas -->
+<ng-template #campoSenha let-form="form">
+  <div class="campo" [formGroup]="form">
+    <div class="campo__linha">
+      <label class="campo__rotulo" for="senha">Senha</label>
+      <a class="campo__link" routerLink="/recuperar-senha">Esqueci minha senha</a>
+    </div>
+    <div class="campo__senha">
+      <input
+        id="senha"
+        class="campo__input"
+        formControlName="senha"
+        autocomplete="current-password"
+        [type]="senhaVisivel() ? 'text' : 'password'"
+        [attr.aria-invalid]="form.controls.senha.touched && form.controls.senha.invalid"
+        aria-describedby="senha-erro"
+      />
+      <button
+        type="button"
+        class="campo__olho"
+        [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+        [attr.aria-pressed]="senhaVisivel()"
+        (click)="senhaVisivel.set(!senhaVisivel())"
+      >
+        <app-icone [nome]="senhaVisivel() ? 'olho-fechado' : 'olho'" />
+      </button>
+    </div>
+    @if (form.controls.senha.touched && form.controls.senha.invalid) {
+      <span id="senha-erro" class="campo__erro">Informe sua senha.</span>
+    }
+  </div>
+</ng-template>
+
+<!-- Erro genérico logo acima do botão, sem dizer qual campo errou -->
+<ng-template #rodapeForm>
+  @if (erro(); as mensagem) {
+    <div class="aviso aviso--erro" role="alert">
+      <app-icone nome="alerta" />
+      {{ mensagem }}
+    </div>
+  }
+
+  <button type="submit" class="botao-primario" [disabled]="carregando()">
+    @if (carregando()) {
+      <app-icone nome="carregando" />
+      Entrando…
+    } @else {
+      Entrar
+    }
+  </button>
+</ng-template>
