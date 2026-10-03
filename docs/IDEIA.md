@@ -40,13 +40,11 @@ Acesso às informações necessárias para processar a folha.
 
 Para não desenvolver um sistema grande demais, começar com estas funcionalidades:
 
-| Funcionalidade | O que resolve |
-| --- | --- |
-| Painel de pendências | Mostra o que falta, quem deve resolver e até quando. |
-| Status da folha | RH e contabilidade sabem em que etapa está o fechamento. |
-| Envio de documentos | O funcionário envia atestados e outros documentos diretamente pelo sistema. |
-| Notificações | Avisa o responsável quando há uma pendência ou prazo próximo. |
-| Histórico de solicitações | Permite consultar quem enviou, aprovou ou solicitou uma correção. |
+- **Painel de pendências:** mostra o que falta, quem deve resolver e até quando.
+- **Status da folha:** RH e contabilidade sabem em que etapa está o fechamento.
+- **Envio de documentos:** o funcionário envia atestados e outros documentos diretamente pelo sistema.
+- **Notificações:** avisa o responsável quando há uma pendência ou prazo próximo.
+- **Histórico de solicitações:** permite consultar quem enviou, aprovou ou solicitou uma correção.
 
 ## 3. Exemplo de como funcionaria
 
@@ -54,11 +52,9 @@ Para não desenvolver um sistema grande demais, começar com estas funcionalidad
 **Funcionário:** João · **Setor:** Produção
 **Status:** Pendente
 
-| Perfil | Ação |
-| --- | --- |
-| Funcionário | Envia o atestado pelo sistema. |
-| RH | Valida o documento e encaminha à contabilidade. |
-| Contabilidade | Confirma o recebimento e processa a informação na folha. |
+- **Funcionário:** envia o atestado pelo sistema.
+- **RH:** valida o documento e encaminha à contabilidade.
+- **Contabilidade:** confirma o recebimento e processa a informação na folha.
 
 **Resultado:** todos acompanham a pendência sem precisar trocar mensagens por WhatsApp.
 
