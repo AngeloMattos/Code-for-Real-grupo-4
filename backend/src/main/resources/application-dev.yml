@@ -1,0 +1,7 @@
+app:
+  demo: true
+  cookie-seguro: false
+  data-referencia: 2026-10-20
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

@@ -1,0 +1,8 @@
+import { Component,input,output } from '@angular/core'; import { Pendencia,tipos } from '../../core/models/modelos';
+import { Avatar,SetorBadge,StatusBadge } from './badges'; import { PrazoLabel } from './prazo-label'; import { TempoRelativoPipe } from '../pipes/tempo-relativo.pipe'; import { EmptyState } from './estados';
+@Component({selector:'fc-pendencias-table',imports:[Avatar,SetorBadge,StatusBadge,PrazoLabel,TempoRelativoPipe,EmptyState],template:`
+@if(!itens().length){<fc-empty titulo="Nenhuma pendência encontrada" descricao="Tudo em dia por aqui. Você pode ajustar os filtros para ver outras solicitações."/>}
+@else{<div class="table-scroll"><table class="data-table"><thead><tr><th>Título / tipo</th><th>Funcionário</th><th>Com quem está</th><th>Prazo</th><th>Status</th><th>Atualização</th></tr></thead><tbody>
+@for(p of itens();track p.id){<tr [class.linha-atrasada]="p.atrasada"><td><button class="row-link" (click)="abrir.emit(p.id)">{{p.titulo}}</button><small>{{tipos[p.tipo]}} @if(p.bloqueiaFolha){<span class="bloqueante">· Bloqueia a folha</span>}</small></td><td><div class="person"><fc-avatar [nome]="p.funcionarioNome" [pequeno]="true"/><span>{{p.funcionarioNome}}</span></div></td><td><fc-setor [valor]="p.setorResponsavel"/></td><td><fc-prazo [valor]="p.prazo" [atrasada]="p.atrasada"/></td><td><fc-status [valor]="p.status"/></td><td><span class="muted nowrap">{{p.ultimaAtualizacao | tempoRelativo}}</span></td></tr>}
+</tbody></table></div>}`})
+export class PendenciasTable { readonly itens=input.required<Pendencia[]>(); readonly abrir=output<number>(); readonly tipos=tipos; }

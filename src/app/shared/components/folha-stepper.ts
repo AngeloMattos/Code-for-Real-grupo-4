@@ -1,0 +1,3 @@
+import { Component,input } from '@angular/core'; import { Folha } from '../../core/models/modelos'; import { Icone } from './icone';
+@Component({selector:'fc-folha-stepper',imports:[Icone],template:`<div class="stepper">@for(etapa of etapas;track etapa;let i=$index){<div class="step" [class.feita]="i<folha().etapaAtual" [class.atual]="i===folha().etapaAtual"><span>@if(i<folha().etapaAtual){<fc-icon nome="check" [tamanho]="14"/>}@else{{{i+1}}}</span><small>{{etapa}}</small></div>}</div>`})
+export class FolhaStepper { readonly folha=input.required<Folha>(); readonly etapas=['Ponto','Documentos','Prévia','Conferência','Fechada']; }

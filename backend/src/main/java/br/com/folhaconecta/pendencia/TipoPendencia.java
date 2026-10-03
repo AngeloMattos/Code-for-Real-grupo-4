@@ -1,0 +1,2 @@
+package br.com.folhaconecta.pendencia;
+public enum TipoPendencia { ATESTADO,FERIAS,ALTERACAO_CADASTRAL,DUVIDA,AJUSTE_PONTO,DOCUMENTO_SOLICITADO,CORRECAO_FOLHA }

@@ -1,0 +1,3 @@
+import { Component,inject,input } from '@angular/core'; import { DatePipe } from '@angular/common'; import { UiService } from '../../core/ui.service';
+@Component({selector:'fc-prazo',imports:[DatePipe],template:`<span class="prazo" [class.atrasado]="atrasada()"><strong>{{valor() | date:'dd/MM/yyyy'}}</strong><small>{{relativo()}}</small></span>`})
+export class PrazoLabel { readonly valor=input.required<string>(); readonly atrasada=input(false); private ui=inject(UiService); relativo(){const dias=Math.round((Date.parse(this.valor())-Date.parse(this.ui.hoje()))/86400000);return this.atrasada()?`Atrasada ${Math.abs(dias)} dia${Math.abs(dias)===1?'':'s'}`:dias===0?'Vence hoje':dias===1?'Em 1 dia':dias>0?`Em ${dias} dias`:'Prazo encerrado';} }

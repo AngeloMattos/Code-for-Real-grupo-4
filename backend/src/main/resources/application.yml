@@ -1,0 +1,47 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/folhaconecta}
+    username: ${DB_USER:folha}
+    password: ${DB_PASSWORD:folha}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  data:
+    web:
+      pageable:
+        default-page-size: 20
+        max-page-size: 200
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+app:
+  cookie-seguro: true
+  jwt:
+    secret: ${JWT_SECRET}
+    access-ttl: 15m
+    refresh-ttl: 7d
+  cors:
+    origens: ${CORS_ORIGENS:http://localhost:4200,http://localhost:5173,http://127.0.0.1:5173}
+  uploads:
+    pasta: ./uploads
+  fiscal:
+    ano: 2026
+    inss:
+      - { limite: 1621.00, aliquota: 0.075 }
+      - { limite: 2902.84, aliquota: 0.09 }
+      - { limite: 4354.27, aliquota: 0.12 }
+      - { limite: 8475.55, aliquota: 0.14 }
+    irrf:
+      - { limite: 2428.80, aliquota: 0, deducao: 0 }
+      - { limite: 2826.65, aliquota: 0.075, deducao: 182.16 }
+      - { limite: 3751.05, aliquota: 0.15, deducao: 394.16 }
+      - { limite: 4664.68, aliquota: 0.225, deducao: 675.49 }
+      - { limite: 999999999, aliquota: 0.275, deducao: 908.73 }
+    isencao: 5000
+    limite-reducao: 7350
+    reducao-constante: 978.62
+    reducao-coeficiente: 0.133145
